@@ -1,7 +1,6 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -38,11 +37,11 @@ public class Server implements Runnable {
                 try{
                     System.out.println("Waiting for client...");
                     socket = serverSocket.accept();         //allows client connect
-                    System.out.println("Connect!");
                 }catch (IOException e){
                     e.printStackTrace();
                 }
                 new Thread(new Server()).start();           //start each thread
+                System.out.println("Connect!");
             }
 
 
@@ -345,10 +344,10 @@ public class Server implements Runnable {
                 oos = new ObjectOutputStream(socket.getOutputStream());
                 ois = new ObjectInputStream(socket.getInputStream());
                 while (true) {
-                    String option = (String) ois.readObject();
+                    int option = (int) ois.readObject();
 
 
-                    if (option.equals("1")) {               //login
+                    if (option == 1) {               //login
                         boolean loggedIn = false;
                         String name = (String) ois.readObject();
                         String password = (String) ois.readObject();
@@ -359,7 +358,7 @@ public class Server implements Runnable {
                             break;
                         }
                         oos.writeObject(loggedIn);
-                    } else if (option.equals("2")) {        //creating account
+                    } else if (option == 2) {        //creating account
                         String nName = (String) ois.readObject();
                         String nPassword = (String) ois.readObject();
                         Account nAccount = new Account(nName, nPassword);
@@ -375,26 +374,15 @@ public class Server implements Runnable {
 
                 oos.writeObject(String.format("%s Entered", thisAccount.getAccountName()));
                 while (true) {
-                    oos.writeObject("\n What do you want to do? " +
-                            "\n (1) Post " +
-                            "\n (2) Account Setting" +
-                            "\n (3) Log Out");
                     String option = (String) ois.readObject();
-                    if (option.equals("1")) {       //posting
-                        oos.writeObject("What do you want to do?" +
-                                "\n(1) See the list of posts" +
-                                "\n(2) Edit your posts" +
-                                "\n(3) Create a new post" +
-                                "\n(4) Delete one of your posts");
+                    if (option.equals("Post")) {       //posting
                         String postOption = (String) ois.readObject();
-
-
-                        if (postOption.equals("1")) {     //listing all posts
+                        if (postOption.equals("See the list of posts")) {     //listing all posts
                             if (posts.size() != 0) {
                                 oos.writeObject(listingPosts(posts));
                             } else
                                 oos.writeObject("No one has written any posts!");
-                        } else if (postOption.equals("2")) {                //editing
+                        } else if (postOption.equals("Edit your posts")) {                //editing
                             ArrayList<Post> privatPosts = new ArrayList<>();    //array of posts
                             for (int i = 0; i < posts.size(); i++) {            // which this account has made
                                 if (posts.get(i).getAccountName().equals(thisAccount.getAccountName())) {
@@ -423,13 +411,10 @@ public class Server implements Runnable {
 
 
                                     if (optionValid) {
-                                        oos.writeObject("(1) Edit title" +
-                                                "\n(2) Edit Author name" +
-                                                "\n(3) Edit Context");
                                         String edit = (String) ois.readObject();
                                         int postPosition = privatPosts.size() - Integer.parseInt(whichPost);
                                         switch (edit) {
-                                            case "1":                           //edit the title of post
+                                            case "Edit Title":                           //edit the title of post
                                                 oos.writeObject("NEW TITLE:");
                                                 String nTitle = (String) ois.readObject();
                                                 if (!nTitle.equals("")) {   //check if user's input is empty
@@ -448,9 +433,8 @@ public class Server implements Runnable {
                                                     oos.writeObject("Title Edited!");
                                                 } else
                                                     oos.writeObject("Empty Input!");
-
                                                 break;
-                                            case "2":          //edit the author name of the post
+                                            case "Edit Author name":          //edit the author name of the post
                                                 oos.writeObject("NEW Author Name:");
                                                 String nAuthorName = (String) ois.readObject();
                                                 if (!nAuthorName.equals("")) {
@@ -469,7 +453,7 @@ public class Server implements Runnable {
                                                 } else
                                                     oos.writeObject("Empty Input!");
                                                 break;
-                                            case "3":                   //edit the context of the post
+                                            case "Edit Context":                   //edit the context of the post
                                                 oos.writeObject("NEW CONTEXT:");
                                                 String nContext = (String) ois.readObject();
                                                 if (!nContext.equals("")) {
@@ -492,12 +476,9 @@ public class Server implements Runnable {
                                     }
                                 }
                             }
-                        } else if (postOption.equals("3")) {           //creating new post
-                            oos.writeObject("Enter title:");
+                        } else if (postOption.equals("Create a new post")) {           //creating new post
                             String title = (String) ois.readObject();
-                            oos.writeObject("Enter Context of your post:");
                             String context = (String) ois.readObject();
-                            oos.writeObject("Enter author name:");
                             String authorName = (String) ois.readObject();
                             //check if new title, context and authorName is empty
                             if (!title.equals("") && !context.equals("") && !authorName.equals("")) {
@@ -511,8 +492,8 @@ public class Server implements Runnable {
                                 bfr.close();
                                 oos.writeObject("Post Created!");
                             } else
-                                oos.writeObject("Failed to Create Post (check if you type empty context)");
-                        } else if (postOption.equals("4")) {    //deleting post
+                                oos.writeObject("Failed to Create Post (check if you typed empty context)");
+                        } else if (postOption.equals("Delete one of your posts")) {    //deleting post
                             boolean empty = false;
                             ArrayList<Post> privatPosts = new ArrayList<>();
                             for (int i = 0; i < posts.size(); i++) { //getting all posts that this user wrote
@@ -554,23 +535,17 @@ public class Server implements Runnable {
                                     //delete from posts array and from file
                                     deletingPost(privatPosts.get(privatPosts.size() - Integer.parseInt(whichPost)));
                                     editPost(null, a);
-                                    oos.writeObject("Deleted!");
                                 }
                             }
                         }
 
 
-                    } else if (option.equals("2")) {    //account setting
+                    } else if (option.equals("Account Setting")) {    //account setting
                         String completionMessage = "";
-                        oos.writeObject("Account Setting " +
-                                "\n(1) Edit " +
-                                "\n(2) Delete");
                         String editOrDelete = (String) ois.readObject();
-                        if (editOrDelete.equals("1")) {                   //Editing Account
+                        if (editOrDelete.equals("Edit")) {                   //Editing Account
                             String editOption = (String) ois.readObject();
-
-
-                            if (editOption.equals("1")) {                   //Editing account name
+                            if (editOption.equals("Account name")) {                   //Editing account name
                                 String nName = (String) ois.readObject();
                                 Account nameEdited = new Account(nName, thisAccount.getPassword());
                                 if (!alreadyExistingAccount(accounts, nameEdited)) {
@@ -591,9 +566,11 @@ public class Server implements Runnable {
                                     completionMessage = "Account Name Edited!";
                                 } else if (thisAccount.getAccountName().equals(nName))
                                     completionMessage = "New AccountName is same as your present accountName!";
-                                else
+                                else {
                                     completionMessage = "Failed to edit (this account name already exists)";
-                            } else if (editOption.equals("2")) {                //editing password
+                                }
+                                oos.writeObject(completionMessage);
+                            } else if (editOption.equals("Password")) {                //editing password
                                 String nPassword = (String) ois.readObject();
                                 Account passwordEdited = new Account(thisAccount.getAccountName(), nPassword);
                                 if (!accountExist(accounts, passwordEdited)) {
@@ -607,12 +584,14 @@ public class Server implements Runnable {
                                     completionMessage = "Password Edited!";
                                 } else if (thisAccount.getAccountName().equals(nPassword))
                                     completionMessage = "New password is same as your present password!";
-                                else
+                                else {
                                     completionMessage = "Failed to edit (this account name already exists)";
+                                }
+                                oos.writeObject(completionMessage);
                             }
-                        } else if (editOrDelete.equals("2")) {             //Deleting Account
-                            String yn = (String) ois.readObject();
-                            if (yn.equalsIgnoreCase("y")) {     //Delete Confirmed
+                        } else if (editOrDelete.equals("Delete")) {             //Deleting Account
+                            int yn = (int) ois.readObject();
+                            if (yn == 0) {     //Yes
                                 int a = 0;
                                 for (int i = 0; i < accounts.size(); i++) {
                                     if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()) &&
@@ -621,23 +600,17 @@ public class Server implements Runnable {
                                 }
                                 editAccount(null, a);
                                 accounts.remove(a);
-                                completionMessage = "Deleted!";
                             }
 
-                        } else {
-                            completionMessage = "Invalid Option!";
                         }
-                        oos.writeObject(completionMessage);
 
-
-                    } else if (option.equals("3")) {                        //Log out
+                    } else if (option.equals("Log Out")) {                        //Log out
                         oos.writeObject(String.format("Goodbye %s", thisAccount.getAccountName()));
                         break;
                     } else
                         oos.writeObject("INVALID OPTION!");
                 }
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Disconnected");
                 break;
             }
         }
