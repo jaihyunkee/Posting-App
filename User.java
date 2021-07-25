@@ -47,17 +47,49 @@ public class User {
                     "What do you want to do?", "Posting App", JOptionPane.PLAIN_MESSAGE,
                     null, loginCreateAccount, loginCreateAccount);
             int accountOption = 0;
-            if (sAccountOption.equals(loginCreateAccount[0])) {
+            if (sAccountOption == null) {
+                return;
+            } else if (sAccountOption.equals(loginCreateAccount[0])) {
                 accountOption = 1;
             } else if (sAccountOption.equals(loginCreateAccount[1])) {
                 accountOption = 2;
             }
             oos.writeObject(accountOption);
             if (accountOption == 1) {
-                String name = JOptionPane.showInputDialog(null, "Enter your account name:",
-                        "Log in", JOptionPane.QUESTION_MESSAGE);
-                String password = JOptionPane.showInputDialog(null, "Enter your password",
-                        "Log in", JOptionPane.QUESTION_MESSAGE);
+                String name;
+                do {
+                    name = JOptionPane.showInputDialog(null, "Enter your account name:",
+                            "Log in", JOptionPane.QUESTION_MESSAGE);
+                    if (name == null) {
+                        int ver = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
+                                "Verification", JOptionPane.YES_NO_OPTION);
+                        if (ver == JOptionPane.YES_OPTION) {
+                            return;
+                        }
+                    }
+                    if (name.isBlank()) {
+                        JOptionPane.showMessageDialog(null, "Account name can not be empty!",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } while (name == null || name.isBlank());
+                
+                String password;
+                do {
+                    password = JOptionPane.showInputDialog(null, "Enter your password",
+                            "Log in", JOptionPane.QUESTION_MESSAGE);
+                    if (password == null) {
+                        int ver = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
+                                "Verification", JOptionPane.YES_NO_OPTION);
+                        if (ver == JOptionPane.YES_OPTION) {
+                            return;
+                        }
+                    }
+                    if (password.isBlank()) {
+                        JOptionPane.showMessageDialog(null, "Password can not be empty!",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } while (password == null || password.isBlank());
+                
                 oos.writeObject(name);
                 oos.writeObject(password);
                 if ((boolean) ois.readObject()) {
@@ -69,12 +101,25 @@ public class User {
                             "Check your username and password again!",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
+                
             } else if (accountOption == 2) {
-                String nName = JOptionPane.showInputDialog(null, "Enter your new account name:",
-                        "Creating Account", JOptionPane.QUESTION_MESSAGE);
-                String nPassword = JOptionPane.showInputDialog(null,
-                        "Enter your new account name:",
-                        "Creating Account", JOptionPane.QUESTION_MESSAGE);
+                String nName;
+                do {
+                    nName = JOptionPane.showInputDialog(null, "Enter your new account name:",
+                            "Creating Account", JOptionPane.QUESTION_MESSAGE);
+                    if (nName == null) {
+                        exit1();
+                    }
+                } while (nName == null);
+                String nPassword;
+                do {
+                    nPassword = JOptionPane.showInputDialog(null,
+                            "Enter your new account name:",
+                            "Creating Account", JOptionPane.QUESTION_MESSAGE);
+                    if (nPassword == null) {
+                        exit1();
+                    }
+                } while (nPassword == null);
                 if (!nName.equals("") && !nPassword.equals("")) {
                     oos.writeObject(nName);
                     oos.writeObject(nPassword);
@@ -94,7 +139,8 @@ public class User {
         String welcomeMessage = (String) ois.readObject();
         JOptionPane.showMessageDialog(null, welcomeMessage + "\nWelcome to Posting Program",
                 "Welcome", JOptionPane.INFORMATION_MESSAGE);
-        while (true) {
+        boolean keep = true;
+        while (keep) {
             String[] generalOptions = new String[3];
             generalOptions[0] = "Post";
             generalOptions[1] = "Account Setting";
@@ -102,7 +148,21 @@ public class User {
             String option = (String) JOptionPane.showInputDialog(null,
                     "\n What do you want to do? ", "Posting Application",
                     JOptionPane.PLAIN_MESSAGE, null, generalOptions, generalOptions);
-            oos.writeObject(option);
+            
+            /*
+             I don't why it cannot be handled in the "else" statement, but it do shows the error
+             Try to handle it before "if statements", works
+            */
+            if (option != null) {
+                oos.writeObject(option);
+            // Please double check about this part: I'm not that familiar with ois and oos.
+            } else {
+                // String invalidMessage = (String) ois.readObject();
+                if (exit2() == 1) {
+                    keep = false;
+                    break;
+                }
+            }
             if (option.equals("Post")) {                     //posting
                 String[] postOptions = new String[4];
                 postOptions[0] = "See the list of posts";
@@ -292,11 +352,29 @@ public class User {
                 JOptionPane.showMessageDialog(null,goodbye,
                         "Goodbye",JOptionPane.INFORMATION_MESSAGE);
                 break;
-            } else {                                                              //INVALID OPTION
+            // main menu    
+            } /*else {                                                              //INVALID OPTION
                 String invalidMessage = (String) ois.readObject();
                 JOptionPane.showMessageDialog(null,invalidMessage,
                         "Goodbye",JOptionPane.INFORMATION_MESSAGE);
-            }
+            }*/
         }
+    }
+    
+    public static void exit1() {
+        int ver1 = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
+                "Verification", JOptionPane.YES_NO_OPTION);
+        if (ver1 == JOptionPane.YES_OPTION) {
+            return;
+        }
+    }
+    
+    public static int exit2() {
+        int ver2 = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
+                "Verification", JOptionPane.YES_NO_OPTION);
+        if (ver2 == JOptionPane.YES_OPTION) {
+            return 1;
+        }
+        return 0;
     }
 }
