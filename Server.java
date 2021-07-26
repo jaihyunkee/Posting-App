@@ -620,20 +620,20 @@ public class Server implements Runnable {
                         int yn = (int) ois.readObject();
                         if (yn == 0) {     //Yes
                             int a = 0;
-                            int p = 0;
+                            String detect = null;
                             for (int i = 0; i < accounts.size(); i++) {
                                 if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()) &&
                                         accounts.get(i).getPassword().equals(thisAccount.getPassword()))
                                     a = i;
-                                // delete the postings as well when deleting the account
-                                for (int m = 0; m < posts.size(); m++) {
-                                    if (accounts.get(i).getAccountName().equals(posts.get(m).getAccountName())) {
-                                        p = m;
-                                    }
+                                    detect = accounts.get(i).getAccountName();
+                            }
+                            // delete the postings as well when deleting the account
+                            for (int m = 0; m < posts.size(); m++) {
+                                if (posts.get(m).getAccountName().equals(detect)) {
+                                    editPost(null, m);
+                                    posts.remove(m);
                                 }
                             }
-                            editPost(null, p);
-                            posts.remove(p);
                             editAccount(null, a);
                             accounts.remove(a);
                             loggedIn.remove(thisAccount);
