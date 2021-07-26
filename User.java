@@ -120,7 +120,7 @@ public class User extends Thread {
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
                         break;
                     }
-                    if ((boolean)ois.readObject()) {
+                    if ((boolean) ois.readObject()) {
                         JOptionPane.showMessageDialog(null,
                                 "Someone is using this account!",
                                 "Error", JOptionPane.ERROR_MESSAGE);
@@ -211,8 +211,11 @@ public class User extends Thread {
                     oos.writeObject(userChoice);
                     if (userChoice.equals("See the list of posts")) {            //listing
                         String list = (String) ois.readObject();
-                        JOptionPane.showMessageDialog(null, list,
-                                "Posts", JOptionPane.INFORMATION_MESSAGE);
+                        JTextArea textArea = new JTextArea(list, 30, 30);
+                        JScrollPane sp = new JScrollPane(textArea);
+                        sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                        JOptionPane.showMessageDialog(null,
+                                sp, "Posts", JOptionPane.INFORMATION_MESSAGE);
                     } else if (userChoice.equals("Edit your posts")) {
                         //editing
                         if (!(boolean) ois.readObject()) {                  //check if this user hasn't written any posts
