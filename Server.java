@@ -20,6 +20,7 @@ public class Server implements Runnable {
     private static File accountFile = new File("Accounts.txt");     //location of account data saved
     private static File postFile = new File("Posts.txt");           //location of posts data saved
     private static Account thisAccount = null;                               //current user account data
+    private static ArrayList<Account> loggedIn;
 
     /**
      * Accept the users here and make a thread for each users and run it
@@ -32,15 +33,17 @@ public class Server implements Runnable {
         try {
             getAccountAndPasswordFromFile();        //when server starts get account data from file
             getPostsFromFile();                     //when server starts get posts data from file
+            loggedIn = new ArrayList<>();
             serverSocket = new ServerSocket(SERVER_PORT);
-            while(true){
-                try{
+            while (true) {
+                try {
                     System.out.println("Waiting for client...");
                     socket = serverSocket.accept();         //allows client connect
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-                new Thread(new Server()).start();           //start each thread
+                Thread temp = new Thread(new Server());       //start each thread
+                temp.start();
                 System.out.println("Connect!");
             }
 
@@ -332,287 +335,314 @@ public class Server implements Runnable {
     }
 
     /**
+     * Check if account parameter is already logged in
+     *
+     * @param account
+     */
+    public static boolean isLoggedIn(Account account) {
+        for (int i = 0; i < loggedIn.size(); i++) {
+            if (loggedIn.get(i).getAccountName().equals(account.getAccountName()) &&
+                    loggedIn.get(i).getPassword().equals(account.getPassword())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * New User runs from here
      */
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                ObjectOutputStream oos = null;
-                ObjectInputStream ois = null;
-                oos = new ObjectOutputStream(socket.getOutputStream());
-                ois = new ObjectInputStream(socket.getInputStream());
-                while (true) {
-                    int option = (int) ois.readObject();
-
-
-                    if (option == 1) {               //login
-                        boolean loggedIn = false;
-                        String name = (String) ois.readObject();
-                        String password = (String) ois.readObject();
-                        thisAccount = new Account(name, password);
-                        if (accountExist(accounts, thisAccount)) {
-                            loggedIn = true;
-                            oos.writeObject(loggedIn);
+        ObjectOutputStream oos = null;
+        ObjectInputStream ois = null;
+        try {
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            ois = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert ois != null;
+        try {
+            while (true) {
+                int option = (int) ois.readObject();
+                if (option == 1) {               //login
+                    String name = (String) ois.readObject();
+                    String password = (String) ois.readObject();
+                    thisAccount = new Account(name, password);
+                    if (accountExist(accounts, thisAccount)) {
+                        if (!isLoggedIn(thisAccount)) {
+                            loggedIn.add(thisAccount);
+                            oos.writeObject(true);
                             break;
                         }
-                        oos.writeObject(loggedIn);
-                    } else if (option == 2) {        //creating account
-                        String nName = (String) ois.readObject();
-                        String nPassword = (String) ois.readObject();
-                        Account nAccount = new Account(nName, nPassword);
-                        boolean exist = alreadyExistingAccount(accounts, nAccount); //check if account name already
-                        oos.writeObject(exist);                                     //exists
-                        if (!exist) {
-                            accounts.add(nAccount);
-                            addAccountToFile(nAccount);
-                        }
                     }
+                    oos.writeObject(false);
+                    if (isLoggedIn(thisAccount)) {
+                        oos.writeObject(true);
+                    }
+                    oos.writeObject(false);
+                } else if (option == 2) {        //creating account
+                    String nName = (String) ois.readObject();
+                    String nPassword = (String) ois.readObject();
+                    Account nAccount = new Account(nName, nPassword);
+                    boolean exist = alreadyExistingAccount(accounts, nAccount); //check if account name already
+                    oos.writeObject(exist);
+                    if (!exist) {
+                        accounts.add(nAccount);
+                        addAccountToFile(nAccount);
+                    }
+                } else if (option == 0) {
+                    return;
                 }
+            }
 
 
-                oos.writeObject(String.format("%s Entered", thisAccount.getAccountName()));
-                while (true) {
-                    String option = (String) ois.readObject();
-                    if (option.equals("Post")) {       //posting
-                        String postOption = (String) ois.readObject();
-                        if (postOption.equals("See the list of posts")) {     //listing all posts
-                            if (posts.size() != 0) {
-                                oos.writeObject(listingPosts(posts));
-                            } else
-                                oos.writeObject("No one has written any posts!");
-                        } else if (postOption.equals("Edit your posts")) {                //editing
-                            ArrayList<Post> privatPosts = new ArrayList<>();    //array of posts
-                            for (int i = 0; i < posts.size(); i++) {            // which this account has made
-                                if (posts.get(i).getAccountName().equals(thisAccount.getAccountName())) {
-                                    privatPosts.add(posts.get(i));
-                                }
-                            }
-
-                            oos.writeObject(privatPosts.size() == 0); //check if this user hasn't written any posts
-                            if (privatPosts.size() != 0) {
-                                int count = 1;
-                                String privatPostsToString = "";
-                                for (int i = privatPosts.size() - 1; i >= 0; i--) { //listing posts from recent to old
-                                    privatPostsToString = privatPostsToString.concat(String.format("\n[%d]\n", count));
-                                    privatPostsToString = privatPostsToString.concat(privatPosts.get(i).toString());
-                                    count++;
-                                }
-                                oos.writeObject(privatPostsToString + "\n Which one do you want to edit");
-                                String whichPost = (String) ois.readObject();
-                                if (!whichPost.equals("") && isNumeric(whichPost)) {
-                                    boolean optionValid = false;
-                                    if (Integer.parseInt(whichPost) <= privatPosts.size()
-                                            && Integer.parseInt(whichPost) > 0) {
-                                        optionValid = true;
-                                    }
-                                    oos.writeObject(optionValid);
-
-
-                                    if (optionValid) {
-                                        String edit = (String) ois.readObject();
-                                        int postPosition = privatPosts.size() - Integer.parseInt(whichPost);
-                                        switch (edit) {
-                                            case "Edit Title":                           //edit the title of post
-                                                oos.writeObject("NEW TITLE:");
-                                                String nTitle = (String) ois.readObject();
-                                                if (!nTitle.equals("")) {   //check if user's input is empty
-                                                    //update timestamp and title
-                                                    posts.get(posts.indexOf
-                                                            (privatPosts.get(postPosition))).setTitle(nTitle);
-                                                    posts.get(posts.indexOf
-                                                            (privatPosts.get(postPosition)))
-                                                            .setTimestamp(String.valueOf
-                                                                    (new Timestamp(System.currentTimeMillis())));
-                                                    //update edited post to file
-                                                    Post TitleReplacement =
-                                                            posts.get(posts.indexOf(privatPosts.get(postPosition)));
-                                                    editPost(TitleReplacement,
-                                                            posts.indexOf(privatPosts.get(postPosition)));
-                                                    oos.writeObject("Title Edited!");
-                                                } else
-                                                    oos.writeObject("Empty Input!");
-                                                break;
-                                            case "Edit Author name":          //edit the author name of the post
-                                                oos.writeObject("NEW Author Name:");
-                                                String nAuthorName = (String) ois.readObject();
-                                                if (!nAuthorName.equals("")) {
-                                                    //edit the author name to posts array and update time
-                                                    posts.get(posts.indexOf
-                                                            (privatPosts.get(postPosition))).setName(nAuthorName);
-                                                    posts.get(posts.indexOf(privatPosts.get(postPosition)))
-                                                            .setTimestamp(String.valueOf
-                                                                    (new Timestamp(System.currentTimeMillis())));
-                                                    //update edited post to file
-                                                    Post authorReplacement = posts.get
-                                                            (posts.indexOf(privatPosts.get(postPosition)));
-                                                    editPost(authorReplacement,
-                                                            posts.indexOf(privatPosts.get(postPosition)));
-                                                    oos.writeObject("Author Name Edited!");
-                                                } else
-                                                    oos.writeObject("Empty Input!");
-                                                break;
-                                            case "Edit Context":                   //edit the context of the post
-                                                oos.writeObject("NEW CONTEXT:");
-                                                String nContext = (String) ois.readObject();
-                                                if (!nContext.equals("")) {
-                                                    //edit the context to posts array and update time
-                                                    posts.get(posts.indexOf
-                                                            (privatPosts.get(postPosition))).setTextContext(nContext);
-                                                    posts.get(posts.indexOf(privatPosts.get(postPosition))).
-                                                            setTimestamp(String.valueOf
-                                                                    (new Timestamp(System.currentTimeMillis())));
-                                                    //updated edited post to file
-                                                    Post contextReplacement =
-                                                            posts.get(posts.indexOf(privatPosts.get(postPosition)));
-                                                    editPost(contextReplacement,
-                                                            posts.indexOf(privatPosts.get(postPosition)));
-                                                    oos.writeObject("Context Edited");
-                                                } else
-                                                    oos.writeObject("Empty Input!");
-                                                break;
-                                        }
-                                    }
-                                }
-                            }
-                        } else if (postOption.equals("Create a new post")) {           //creating new post
-                            String title = (String) ois.readObject();
-                            String context = (String) ois.readObject();
-                            String authorName = (String) ois.readObject();
-                            //check if new title, context and authorName is empty
-                            if (!title.equals("") && !context.equals("") && !authorName.equals("")) {
-                                //create new post to posting array and update it to file
-                                creatingPost(title, authorName, context, thisAccount.getAccountName());
-                                BufferedWriter bfr = new BufferedWriter(new FileWriter(postFile, true));
-                                String postToFile = title + "/br/" + authorName + "/br/" + context + "/br/" +
-                                        new Timestamp(System.currentTimeMillis()) + "/br/" + authorName;
-                                bfr.write(postToFile);
-                                bfr.write("\n");
-                                bfr.close();
-                                oos.writeObject("Post Created!");
-                            } else
-                                oos.writeObject("Failed to Create Post (check if you typed empty context)");
-                        } else if (postOption.equals("Delete one of your posts")) {    //deleting post
-                            boolean empty = false;
-                            ArrayList<Post> privatPosts = new ArrayList<>();
-                            for (int i = 0; i < posts.size(); i++) { //getting all posts that this user wrote
-                                if (posts.get(i).getAccountName().equals(thisAccount.getAccountName())) {
-                                    privatPosts.add(posts.get(i));
-                                }
-                            }
-                            if (privatPosts.size() == 0) {          //check if this user hasn't written any posts
-                                empty = true;
-                            }
-                            oos.writeObject(empty);
-                            if (!empty) {
-                                String privatPostsToString = "";
-                                int postCount = 1;
-                                //printing all posts that user has written
-                                for (int i = privatPosts.size() - 1; i >= 0; i--) {
-                                    privatPostsToString =
-                                            privatPostsToString.concat(String.format("\n[%d]\n", postCount));
-                                    privatPostsToString = privatPostsToString.concat(privatPosts.get(i).toString());
-                                    postCount++;
-                                }
-                                //ask which post to delete
-                                oos.writeObject(privatPostsToString + "\n Which one do you want to delete");
-                                oos.writeObject(privatPosts.size());
-                                String whichPost = (String) ois.readObject();
-                                //check if user's input is valid
-                                if (!whichPost.equals("") && isNumeric(whichPost)
-                                        && Integer.parseInt(whichPost) <= privatPosts.size()
-                                        && Integer.parseInt(whichPost) > 0) {
-                                    Post temp = privatPosts.get(privatPosts.size() - Integer.parseInt(whichPost));
-                                    int a = 0;
-                                    //find where the post is in posts array
-                                    for (int i = 0; i < posts.size(); i++) {
-                                        if (posts.get(i).getAccountName().equals(temp.getAccountName())
-                                                && posts.get(i).getTitle().equals(temp.getTitle())
-                                                && posts.get(i).getTextContext().equals(temp.getTextContext()))
-                                            a = i;
-                                    }
-                                    //delete from posts array and from file
-                                    deletingPost(privatPosts.get(privatPosts.size() - Integer.parseInt(whichPost)));
-                                    editPost(null, a);
-                                }
+            oos.writeObject(String.format("%s Entered", thisAccount.getAccountName()));
+            while (true) {
+                String option = (String) ois.readObject();
+                if (option.equals("Post")) {       //posting
+                    String postOption = (String) ois.readObject();
+                    if (postOption.equals("See the list of posts")) {     //listing all posts
+                        if (posts.size() != 0) {
+                            oos.writeObject(listingPosts(posts));
+                        } else
+                            oos.writeObject("No one has written any posts!");
+                    } else if (postOption.equals("Edit your posts")) {                //editing
+                        ArrayList<Post> privatPosts = new ArrayList<>();    //array of posts
+                        for (int i = 0; i < posts.size(); i++) {            // which this account has made
+                            if (posts.get(i).getAccountName().equals(thisAccount.getAccountName())) {
+                                privatPosts.add(posts.get(i));
                             }
                         }
 
-
-                    } else if (option.equals("Account Setting")) {    //account setting
-                        String completionMessage = "";
-                        String editOrDelete = (String) ois.readObject();
-                        if (editOrDelete.equals("Edit")) {                   //Editing Account
-                            String editOption = (String) ois.readObject();
-                            if (editOption.equals("Account name")) {                   //Editing account name
-                                String nName = (String) ois.readObject();
-                                Account nameEdited = new Account(nName, thisAccount.getPassword());
-                                if (!alreadyExistingAccount(accounts, nameEdited)) {
-                                    int a = 0;
-                                    for (int i = 0; i < accounts.size(); i++) {
-                                        if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()))
-                                            a = i;
-                                    }
-                                    for (int i = 0; i < posts.size(); i++) {
-                                        if (posts.get(i).getAccountName().equals(accounts.get(a).getAccountName())) {
-                                            posts.get(i).setAccountName(nName);
-                                            editPost(posts.get(i), i);
-                                        }
-                                    }
-                                    accounts.set(a, nameEdited);
-                                    editAccount(nameEdited, a);
-                                    thisAccount.setAccountName(nName);
-                                    completionMessage = "Account Name Edited!";
-                                } else if (thisAccount.getAccountName().equals(nName))
-                                    completionMessage = "New AccountName is same as your present accountName!";
-                                else {
-                                    completionMessage = "Failed to edit (this account name already exists)";
-                                }
-                                oos.writeObject(completionMessage);
-                            } else if (editOption.equals("Password")) {                //editing password
-                                String nPassword = (String) ois.readObject();
-                                Account passwordEdited = new Account(thisAccount.getAccountName(), nPassword);
-                                if (!accountExist(accounts, passwordEdited)) {
-                                    int a = 0;
-                                    for (int i = 0; i < accounts.size(); i++) {
-                                        if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()))
-                                            a = i;
-                                    }
-                                    accounts.set(a, passwordEdited);
-                                    editAccount(passwordEdited, a);
-                                    completionMessage = "Password Edited!";
-                                } else if (thisAccount.getAccountName().equals(nPassword))
-                                    completionMessage = "New password is same as your present password!";
-                                else {
-                                    completionMessage = "Failed to edit (this account name already exists)";
-                                }
-                                oos.writeObject(completionMessage);
+                        oos.writeObject(privatPosts.size() == 0); //check if this user hasn't written any posts
+                        if (privatPosts.size() != 0) {
+                            int count = 1;
+                            String privatPostsToString = "";
+                            for (int i = privatPosts.size() - 1; i >= 0; i--) { //listing posts from recent to old
+                                privatPostsToString = privatPostsToString.concat(String.format("\n[%d]\n", count));
+                                privatPostsToString = privatPostsToString.concat(privatPosts.get(i).toString());
+                                count++;
                             }
-                        } else if (editOrDelete.equals("Delete")) {             //Deleting Account
-                            int yn = (int) ois.readObject();
-                            if (yn == 0) {     //Yes
+                            oos.writeObject(privatPostsToString + "\n Which one do you want to edit");
+                            String whichPost = (String) ois.readObject();
+                            if (!whichPost.equals("") && isNumeric(whichPost)) {
+                                boolean optionValid = false;
+                                if (Integer.parseInt(whichPost) <= privatPosts.size()
+                                        && Integer.parseInt(whichPost) > 0) {
+                                    optionValid = true;
+                                }
+                                oos.writeObject(optionValid);
+
+
+                                if (optionValid) {
+                                    String edit = (String) ois.readObject();
+                                    int postPosition = privatPosts.size() - Integer.parseInt(whichPost);
+                                    switch (edit) {
+                                        case "Edit Title":                           //edit the title of post
+                                            oos.writeObject("NEW TITLE:");
+                                            String nTitle = (String) ois.readObject();
+                                            if (!nTitle.equals("")) {   //check if user's input is empty
+                                                //update timestamp and title
+                                                posts.get(posts.indexOf
+                                                        (privatPosts.get(postPosition))).setTitle(nTitle);
+                                                posts.get(posts.indexOf
+                                                        (privatPosts.get(postPosition)))
+                                                        .setTimestamp(String.valueOf
+                                                                (new Timestamp(System.currentTimeMillis())));
+                                                //update edited post to file
+                                                Post TitleReplacement =
+                                                        posts.get(posts.indexOf(privatPosts.get(postPosition)));
+                                                editPost(TitleReplacement,
+                                                        posts.indexOf(privatPosts.get(postPosition)));
+                                                oos.writeObject("Title Edited!");
+                                            } else
+                                                oos.writeObject("Empty Input!");
+                                            break;
+                                        case "Edit Author name":          //edit the author name of the post
+                                            oos.writeObject("NEW Author Name:");
+                                            String nAuthorName = (String) ois.readObject();
+                                            if (!nAuthorName.equals("")) {
+                                                //edit the author name to posts array and update time
+                                                posts.get(posts.indexOf
+                                                        (privatPosts.get(postPosition))).setName(nAuthorName);
+                                                posts.get(posts.indexOf(privatPosts.get(postPosition)))
+                                                        .setTimestamp(String.valueOf
+                                                                (new Timestamp(System.currentTimeMillis())));
+                                                //update edited post to file
+                                                Post authorReplacement = posts.get
+                                                        (posts.indexOf(privatPosts.get(postPosition)));
+                                                editPost(authorReplacement,
+                                                        posts.indexOf(privatPosts.get(postPosition)));
+                                                oos.writeObject("Author Name Edited!");
+                                            } else
+                                                oos.writeObject("Empty Input!");
+                                            break;
+                                        case "Edit Context":                   //edit the context of the post
+                                            oos.writeObject("NEW CONTEXT:");
+                                            String nContext = (String) ois.readObject();
+                                            if (!nContext.equals("")) {
+                                                //edit the context to posts array and update time
+                                                posts.get(posts.indexOf
+                                                        (privatPosts.get(postPosition))).setTextContext(nContext);
+                                                posts.get(posts.indexOf(privatPosts.get(postPosition))).
+                                                        setTimestamp(String.valueOf
+                                                                (new Timestamp(System.currentTimeMillis())));
+                                                //updated edited post to file
+                                                Post contextReplacement =
+                                                        posts.get(posts.indexOf(privatPosts.get(postPosition)));
+                                                editPost(contextReplacement,
+                                                        posts.indexOf(privatPosts.get(postPosition)));
+                                                oos.writeObject("Context Edited");
+                                            } else
+                                                oos.writeObject("Empty Input!");
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    } else if (postOption.equals("Create a new post")) {           //creating new post
+                        String title = (String) ois.readObject();
+                        String context = (String) ois.readObject();
+                        String authorName = (String) ois.readObject();
+                        //check if new title, context and authorName is empty
+                        if (!title.equals("") && !context.equals("") && !authorName.equals("")) {
+                            //create new post to posting array and update it to file
+                            creatingPost(title, authorName, context, thisAccount.getAccountName());
+                            BufferedWriter bfr = new BufferedWriter(new FileWriter(postFile, true));
+                            String postToFile = title + "/br/" + authorName + "/br/" + context + "/br/" +
+                                    new Timestamp(System.currentTimeMillis()) + "/br/" + authorName;
+                            bfr.write(postToFile);
+                            bfr.write("\n");
+                            bfr.close();
+                            oos.writeObject("Post Created!");
+                        } else
+                            oos.writeObject("Failed to Create Post (check if you typed empty context)");
+                    } else if (postOption.equals("Delete one of your posts")) {    //deleting post
+                        boolean empty = false;
+                        ArrayList<Post> privatPosts = new ArrayList<>();
+                        for (int i = 0; i < posts.size(); i++) { //getting all posts that this user wrote
+                            if (posts.get(i).getAccountName().equals(thisAccount.getAccountName())) {
+                                privatPosts.add(posts.get(i));
+                            }
+                        }
+                        if (privatPosts.size() == 0) {          //check if this user hasn't written any posts
+                            empty = true;
+                        }
+                        oos.writeObject(empty);
+                        if (!empty) {
+                            String privatPostsToString = "";
+                            int postCount = 1;
+                            //printing all posts that user has written
+                            for (int i = privatPosts.size() - 1; i >= 0; i--) {
+                                privatPostsToString =
+                                        privatPostsToString.concat(String.format("\n[%d]\n", postCount));
+                                privatPostsToString = privatPostsToString.concat(privatPosts.get(i).toString());
+                                postCount++;
+                            }
+                            //ask which post to delete
+                            oos.writeObject(privatPostsToString + "\n Which one do you want to delete");
+                            oos.writeObject(privatPosts.size());
+                            String whichPost = (String) ois.readObject();
+                            //check if user's input is valid
+                            if (!whichPost.equals("") && isNumeric(whichPost)
+                                    && Integer.parseInt(whichPost) <= privatPosts.size()
+                                    && Integer.parseInt(whichPost) > 0) {
+                                Post temp = privatPosts.get(privatPosts.size() - Integer.parseInt(whichPost));
                                 int a = 0;
-                                for (int i = 0; i < accounts.size(); i++) {
-                                    if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()) &&
-                                            accounts.get(i).getPassword().equals(thisAccount.getPassword()))
+                                //find where the post is in posts array
+                                for (int i = 0; i < posts.size(); i++) {
+                                    if (posts.get(i).getAccountName().equals(temp.getAccountName())
+                                            && posts.get(i).getTitle().equals(temp.getTitle())
+                                            && posts.get(i).getTextContext().equals(temp.getTextContext()))
                                         a = i;
                                 }
-                                editAccount(null, a);
-                                accounts.remove(a);
+                                //delete from posts array and from file
+                                deletingPost(privatPosts.get(privatPosts.size() - Integer.parseInt(whichPost)));
+                                editPost(null, a);
                             }
+                        }
+                    }
 
+
+                } else if (option.equals("Account Setting")) {    //account setting
+                    String completionMessage = "";
+                    String editOrDelete = (String) ois.readObject();
+                    if (editOrDelete.equals("Edit")) {                   //Editing Account
+                        String editOption = (String) ois.readObject();
+                        if (editOption.equals("Account name")) {                   //Editing account name
+                            String nName = (String) ois.readObject();
+                            Account nameEdited = new Account(nName, thisAccount.getPassword());
+                            if (!alreadyExistingAccount(accounts, nameEdited)) {
+                                int a = 0;
+                                for (int i = 0; i < accounts.size(); i++) {
+                                    if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()))
+                                        a = i;
+                                }
+                                for (int i = 0; i < posts.size(); i++) {
+                                    if (posts.get(i).getAccountName().equals(accounts.get(a).getAccountName())) {
+                                        posts.get(i).setAccountName(nName);
+                                        editPost(posts.get(i), i);
+                                    }
+                                }
+                                accounts.set(a, nameEdited);
+                                editAccount(nameEdited, a);
+                                thisAccount.setAccountName(nName);
+                                completionMessage = "Account Name Edited!";
+                            } else if (thisAccount.getAccountName().equals(nName))
+                                completionMessage = "New AccountName is same as your present accountName!";
+                            else {
+                                completionMessage = "Failed to edit (this account name already exists)";
+                            }
+                            oos.writeObject(completionMessage);
+                        } else if (editOption.equals("Password")) {                //editing password
+                            String nPassword = (String) ois.readObject();
+                            Account passwordEdited = new Account(thisAccount.getAccountName(), nPassword);
+                            if (!accountExist(accounts, passwordEdited)) {
+                                int a = 0;
+                                for (int i = 0; i < accounts.size(); i++) {
+                                    if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()))
+                                        a = i;
+                                }
+                                accounts.set(a, passwordEdited);
+                                editAccount(passwordEdited, a);
+                                completionMessage = "Password Edited!";
+                            } else if (thisAccount.getAccountName().equals(nPassword))
+                                completionMessage = "New password is same as your present password!";
+                            else {
+                                completionMessage = "Failed to edit (this account name already exists)";
+                            }
+                            oos.writeObject(completionMessage);
+                        }
+                    } else if (editOrDelete.equals("Delete")) {             //Deleting Account
+                        int yn = (int) ois.readObject();
+                        if (yn == 0) {     //Yes
+                            int a = 0;
+                            for (int i = 0; i < accounts.size(); i++) {
+                                if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()) &&
+                                        accounts.get(i).getPassword().equals(thisAccount.getPassword()))
+                                    a = i;
+                            }
+                            editAccount(null, a);
+                            accounts.remove(a);
+                            loggedIn.remove(thisAccount);
+                            break;
                         }
 
-                    } else if (option.equals("Log Out")) {                        //Log out
-                        oos.writeObject(String.format("Goodbye %s", thisAccount.getAccountName()));
-                        break;
-                    } else
-                        oos.writeObject("INVALID OPTION!");
+                    }
+
+                } else if (option.equals("Log Out")) {                        //Log out
+                    oos.writeObject(String.format("Goodbye %s", thisAccount.getAccountName()));
+                    loggedIn.remove(thisAccount);
+                    break;
+                } else {
+                    oos.writeObject("INVALID OPTION!");
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                break;
             }
+        } catch (IOException | ClassNotFoundException e) {
+            loggedIn.remove(thisAccount);
         }
     }
 }
