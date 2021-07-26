@@ -513,7 +513,7 @@ public class Server implements Runnable {
                             creatingPost(title, authorName, context, thisAccount.getAccountName());
                             BufferedWriter bfr = new BufferedWriter(new FileWriter(postFile, true));
                             String postToFile = title + "/br/" + authorName + "/br/" + context + "/br/" +
-                                    new Timestamp(System.currentTimeMillis()) + "/br/" + authorName;
+                                    new Timestamp(System.currentTimeMillis()) + "/br/" + thisAccount.getAccountName();
                             bfr.write(postToFile);
                             bfr.write("\n");
                             bfr.close();
