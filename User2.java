@@ -2,16 +2,15 @@ import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 /**
  * <p>
- * Purdue University -- CS18000 -- Summer 2021 -- Project 4
+ * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version July 21, 2021
  */
-public class User2 extends Thread{
+public class User2 extends Thread {
     private static final String SERVER_IP = "localhost";
     private static final int SERVER_PORT = 5000;
 
@@ -29,6 +28,7 @@ public class User2 extends Thread{
             return false;
         }
     }
+
     public static boolean exit() {
         int ver2 = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
                 "Verification", JOptionPane.YES_NO_OPTION);
@@ -45,8 +45,8 @@ public class User2 extends Thread{
         Thread t = new Thread(new User2());
         t.start();
         t.join();
-        JOptionPane.showMessageDialog(null,"Goodbye",
-                "End Program",JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "See you again!",
+                "End Program", JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
@@ -56,7 +56,6 @@ public class User2 extends Thread{
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush();
-
             //account setting
             while (true) {
                 String[] loginCreateAccount = new String[2];
@@ -69,6 +68,7 @@ public class User2 extends Thread{
                             null, loginCreateAccount, loginCreateAccount);
                     if (sAccountOption == null) {
                         if (exit()) {
+                            oos.writeObject(0);
                             return;
                         }
                     } else
@@ -86,7 +86,7 @@ public class User2 extends Thread{
                 if (accountOption == 1) {
                     do {
                         name = JOptionPane.showInputDialog(null, "Enter your account name:",
-                                "Log in", JOptionPane.QUESTION_MESSAGE);
+                                "Log in", JOptionPane.INFORMATION_MESSAGE);
                         if (name == null) {
                             if (exit()) {
                                 return;
@@ -99,7 +99,7 @@ public class User2 extends Thread{
                     } while (true);
                     do {
                         password = JOptionPane.showInputDialog(null, "Enter your password",
-                                "Log in", JOptionPane.QUESTION_MESSAGE);
+                                "Log in", JOptionPane.INFORMATION_MESSAGE);
                         if (password == null) {
                             if (exit()) {
                                 return;
@@ -120,16 +120,22 @@ public class User2 extends Thread{
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
                         break;
                     } else {
-                        JOptionPane.showMessageDialog(null,
-                                "Check your username and password again!",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        if ((boolean) ois.readObject()) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Someone is using this account!",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Check your username and password again!",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 } else if (accountOption == 2) {
                     String nName;
                     String nPassword;
                     do {
                         nName = JOptionPane.showInputDialog(null, "Enter your new account name:",
-                                "Creating Account", JOptionPane.QUESTION_MESSAGE);
+                                "Creating Account", JOptionPane.INFORMATION_MESSAGE);
                         if (nName == null) {
                             if (exit()) {
                                 return;
@@ -140,7 +146,7 @@ public class User2 extends Thread{
                     do {
                         nPassword = JOptionPane.showInputDialog(null,
                                 "Enter your new account name:",
-                                "Creating Account", JOptionPane.QUESTION_MESSAGE);
+                                "Creating Account", JOptionPane.INFORMATION_MESSAGE);
                         if (nPassword == null) {
                             if (exit()) {
                                 return;
@@ -206,8 +212,11 @@ public class User2 extends Thread{
                     oos.writeObject(userChoice);
                     if (userChoice.equals("See the list of posts")) {            //listing
                         String list = (String) ois.readObject();
-                        JOptionPane.showMessageDialog(null, list,
-                                "Posts", JOptionPane.INFORMATION_MESSAGE);
+                        JTextArea textArea = new JTextArea(list, 30, 30);
+                        JScrollPane sp = new JScrollPane(textArea);
+                        sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                        JOptionPane.showMessageDialog(null,
+                                sp, "Posts", JOptionPane.INFORMATION_MESSAGE);
                     } else if (userChoice.equals("Edit your posts")) {
                         //editing
                         if (!(boolean) ois.readObject()) {                  //check if this user hasn't written any posts
@@ -483,6 +492,8 @@ public class User2 extends Thread{
                     JOptionPane.showMessageDialog(null, invalidMessage,
                             "Goodbye", JOptionPane.INFORMATION_MESSAGE);
                 }
+
+
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();
