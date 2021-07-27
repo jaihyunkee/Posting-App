@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -13,6 +15,13 @@ import java.net.UnknownHostException;
 public class User extends Thread {
     private static final String SERVER_IP = "localhost";
     private static final int SERVER_PORT = 5000;
+    private static JTextField nText;
+    private static JTextField pText;
+    private static JButton lg;
+    private static String name;
+    private static String password;
+    private static JFrame frame;
+    private static boolean loop = false;
 
     /**
      * Check if String has numerical value in it
@@ -36,6 +45,19 @@ public class User extends Thread {
             return true;
         }
         return false;
+    }
+
+    static public class actionListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+
+            if (e.getSource() == lg) {
+                name = nText.getText();
+                password = pText.getText();
+                loop = true;
+            }
+
+        }
     }
 
     /**
@@ -74,8 +96,6 @@ public class User extends Thread {
                     } else
                         break;
                 } while (true);
-                String name;
-                String password;
                 int accountOption = 0;
                 if (sAccountOption.equals(loginCreateAccount[0])) {
                     accountOption = 1;
@@ -84,40 +104,39 @@ public class User extends Thread {
                 }
                 oos.writeObject(accountOption);
                 if (accountOption == 1) {
-                    do {
-                        name = JOptionPane.showInputDialog(null, "Enter your account name:",
-                                "Log in", JOptionPane.INFORMATION_MESSAGE);
-                        if (name == null) {
-                            if (exit()) {
-                                return;
-                            }
-                        } else if (name.equals("")) {
-                            JOptionPane.showMessageDialog(null, "Account name can not be empty!",
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                        } else
+                    while (true) {
+                        frame = new JFrame("Welcome");
+                        nText = new JTextField();
+                        nText.setBounds(100, 100, 200, 30);
+                        pText = new JTextField();
+                        pText.setBounds(100, 130, 200, 30);
+                        lg = new JButton("Log in");
+                        lg.setBounds(150, 160, 80, 30);
+                        frame.add(nText);
+                        frame.add(pText);
+                        frame.add(lg);
+                        frame.setSize(380, 300);
+                        frame.setLayout(null);
+                        frame.setLocation(550, 250);
+                        lg.addActionListener(new actionListener());
+                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        frame.setVisible(true);
+                        while (!loop) {
+                            System.out.print("");
+                        }
+                        loop = false;
+                        if (name != null && password != null) {
                             break;
-                    } while (true);
-                    do {
-                        password = JOptionPane.showInputDialog(null, "Enter your password",
-                                "Log in", JOptionPane.INFORMATION_MESSAGE);
-                        if (password == null) {
-                            if (exit()) {
-                                return;
-                            } else {
-                                break;
-                            }
-                        } else if (password.equals("")) {
-                            JOptionPane.showMessageDialog(null, "password can not be empty!",
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                        } else
-                            break;
-                    } while (true);
+                        }
+                    }
+                    frame.setVisible(false);
                     oos.writeObject(name);
                     oos.writeObject(password);
 
                     if ((boolean) ois.readObject()) {
                         JOptionPane.showMessageDialog(null, "LOGGED IN!",
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
+                        frame.dispose();
                         break;
                     } else {
                         if ((boolean) ois.readObject()) {
