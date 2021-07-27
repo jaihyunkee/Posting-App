@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 
 /**
  * <p>
- * Purdue University -- CS18000 -- Summer 2021 -- Project 4
+ * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version July 21, 2021
@@ -119,15 +119,16 @@ public class User extends Thread {
                         JOptionPane.showMessageDialog(null, "LOGGED IN!",
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
                         break;
-                    }
-                    if ((boolean) ois.readObject()) {
-                        JOptionPane.showMessageDialog(null,
-                                "Someone is using this account!",
-                                "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
-                        JOptionPane.showMessageDialog(null,
-                                "Check your username and password again!",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        if ((boolean) ois.readObject()) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Someone is using this account!",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Check your username and password again!",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 } else if (accountOption == 2) {
                     String nName;
