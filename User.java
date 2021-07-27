@@ -135,7 +135,7 @@ public class User extends Thread {
                     String nPassword;
                     do {
                         nName = JOptionPane.showInputDialog(null, "Enter your new account name:",
-                                "Creating Account", JOptionPane.INFORMATION_MESSAGE);
+                                "Creating Account", JOptionPane.PLAIN_MESSAGE);
                         if (nName == null) {
                             if (exit()) {
                                 return;
