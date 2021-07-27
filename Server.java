@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 /**
  * <p>
- * Purdue University -- CS18000 -- Summer 2021 -- Project 4
+ * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version July 21, 2021
@@ -19,7 +19,6 @@ public class Server implements Runnable {
     private static ServerSocket serverSocket = null;
     private static File accountFile = new File("Accounts.txt");     //location of account data saved
     private static File postFile = new File("Posts.txt");           //location of posts data saved
-    private static Account thisAccount = null;                               //current user account data
     private static ArrayList<Account> loggedIn;
 
     /**
@@ -339,7 +338,7 @@ public class Server implements Runnable {
      *
      * @param account
      */
-    public static boolean isLoggedIn(Account account) {
+    public synchronized static boolean isLoggedIn(Account account) {
         for (int i = 0; i < loggedIn.size(); i++) {
             if (loggedIn.get(i).getAccountName().equals(account.getAccountName()) &&
                     loggedIn.get(i).getPassword().equals(account.getPassword())) {
@@ -357,6 +356,7 @@ public class Server implements Runnable {
     public void run() {
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
+        Account thisAccount = null;             //current user account data
         try {
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
@@ -370,19 +370,21 @@ public class Server implements Runnable {
                 if (option == 1) {               //login
                     String name = (String) ois.readObject();
                     String password = (String) ois.readObject();
-                    thisAccount = new Account(name, password);
-                    if (accountExist(accounts, thisAccount)) {
-                        if (!isLoggedIn(thisAccount)) {
+                    Account temp = new Account(name, password);
+                    if (accountExist(accounts, temp)) {
+                        if (!isLoggedIn(temp)) {
+                            thisAccount = temp;
                             loggedIn.add(thisAccount);
                             oos.writeObject(true);
                             break;
                         }
                     }
                     oos.writeObject(false);
-                    if (isLoggedIn(thisAccount)) {
+                    if (isLoggedIn(temp)) {
                         oos.writeObject(true);
+                    } else {
+                        oos.writeObject(false);
                     }
-                    oos.writeObject(false);
                 } else if (option == 2) {        //creating account
                     String nName = (String) ois.readObject();
                     String nPassword = (String) ois.readObject();
@@ -620,19 +622,10 @@ public class Server implements Runnable {
                         int yn = (int) ois.readObject();
                         if (yn == 0) {     //Yes
                             int a = 0;
-                            String detect = null;
                             for (int i = 0; i < accounts.size(); i++) {
                                 if (accounts.get(i).getAccountName().equals(thisAccount.getAccountName()) &&
                                         accounts.get(i).getPassword().equals(thisAccount.getPassword()))
                                     a = i;
-                                    detect = accounts.get(i).getAccountName();
-                            }
-                            // delete the postings as well when deleting the account
-                            for (int m = 0; m < posts.size(); m++) {
-                                if (posts.get(m).getAccountName().equals(detect)) {
-                                    editPost(null, m);
-                                    posts.remove(m);
-                                }
                             }
                             editAccount(null, a);
                             accounts.remove(a);
