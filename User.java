@@ -18,7 +18,7 @@ public class User extends Thread {
     private static JTextField nText;
     private static JTextField pText;
     private static JButton lg;
-    private static JLabel usernameLabel;
+    private static JLabel accountNameLabel;
     private static JLabel passwordLabel;
     private static String name;
     private static String password;
@@ -114,14 +114,14 @@ public class User extends Thread {
                         pText.setBounds(100, 130, 200, 30);
                         lg = new JButton("Log in");
                         lg.setBounds(150, 160, 80, 30);
-                        usernameLabel = new JLabel("Username");
-                        usernameLabel.setBounds(30, 100, 150, 30);
+                        accountNameLabel = new JLabel("Account Name");
+                        accountNameLabel.setBounds(10, 100, 150, 30);
                         passwordLabel = new JLabel("Password");
-                        passwordLabel.setBounds(30, 130, 150, 30);
+                        passwordLabel.setBounds(25, 130, 150, 30);
                         frame.add(nText);
                         frame.add(pText);
                         frame.add(lg);
-                        frame.add(usernameLabel);
+                        frame.add(accountNameLabel);
                         frame.add(passwordLabel);
                         frame.setSize(380, 300);
                         frame.setLayout(null);
