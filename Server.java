@@ -30,8 +30,8 @@ public class Server implements Runnable {
     public static void main(String[] args) {
         //account Setting
         try {
-            getAccountAndPasswordFromFile();        //when server starts get account data from file
-            getPostsFromFile();                     //when server starts get posts data from file
+            getAccountAndPasswordFromFile(accountFile, accounts);  //when server starts get account data from file
+            getPostsFromFile(postFile, posts);                     //when server starts get posts data from file
             loggedIn = new ArrayList<>();
             serverSocket = new ServerSocket(SERVER_PORT);
             while (true) {
@@ -55,7 +55,7 @@ public class Server implements Runnable {
     /**
      * getting all password data from file
      */
-    public synchronized static void getAccountAndPasswordFromFile() {
+    public synchronized static void getAccountAndPasswordFromFile(File f, ArrayList<Account> a) {
         try {
             FileReader fr = new FileReader(accountFile);
             BufferedReader bfr = new BufferedReader(fr);
@@ -82,7 +82,7 @@ public class Server implements Runnable {
     /**
      * getting all post data from file
      */
-    public synchronized static void getPostsFromFile() {
+    public synchronized static void getPostsFromFile(File f, ArrayList<Post> p) {
         try {
             FileReader fr = new FileReader(postFile);
             BufferedReader bfr = new BufferedReader(fr);
