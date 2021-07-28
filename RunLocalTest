@@ -1,0 +1,308 @@
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
+
+import java.io.*;
+import java.lang.reflect.Modifier;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+
+import static org.junit.Assert.*;
+
+public class RunLocalTest {
+    public static void main(String[] args) {
+        Result result = JUnitCore.runClasses(TestCase.class);
+        if (result.wasSuccessful()) {
+            System.out.println("Excellent - Test ran successfully");
+        } else {
+            for (Failure failure : result.getFailures()) {
+                System.out.println(failure.toString());
+            }
+        }
+    }
+
+    public static class TestCase {
+        private final PrintStream originalOutput = System.out;
+        private final InputStream originalSysin = System.in;
+
+        @SuppressWarnings("FieldCanBeLocal")
+        private ByteArrayInputStream testIn;
+
+        @SuppressWarnings("FieldCanBeLocal")
+        private ByteArrayOutputStream testOut;
+
+        @Before
+        public void outputStart() {
+            testOut = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(testOut));
+        }
+
+        @After
+        public void restoreInputAndOutput() {
+            System.setIn(originalSysin);
+            System.setOut(originalOutput);
+        }
+
+        private String getOutput() {
+            return testOut.toString();
+        }
+
+        private void receiveInput(String str) {
+            testIn = new ByteArrayInputStream(str.getBytes());
+            System.setIn(testIn);
+        }
+
+        // test Account.java
+        @Test(timeout = 1000)
+        public void testExpectedOne() {
+            Class<?> clazz = Account.class;
+            int modifiers = clazz.getModifiers();
+            Class<?>[] superinterfaces = clazz.getInterfaces();
+
+            assertTrue("Ensure that `Account` is `public`!", Modifier.isPublic(modifiers));
+
+            assertFalse("Ensure that `Account` is NOT `abstract`!", Modifier.isAbstract(modifiers));
+
+            Assert.assertEquals("Ensure that `Account` implements no interfaces!", 0, superinterfaces.length);
+
+            String accountName = "acName";
+            String password = "secret";
+            Account testAccount = new Account(accountName, password);
+
+            Assert.assertEquals(accountName, testAccount.getAccountName());
+            Assert.assertEquals(password, testAccount.getPassword());
+
+            String newName = "new";
+            String newPassword = "trySthNew";
+            testAccount.setAccountName(newName);
+            testAccount.setPassword(newPassword);
+
+            Assert.assertEquals(newName, testAccount.getAccountName());
+            Assert.assertEquals(newPassword, testAccount.getPassword());
+        }
+
+        // test Post.java
+        @Test(timeout = 1000)
+        public void testExpectedTwo() {
+            Class<?> clazz = Post.class;
+            int modifiers = clazz.getModifiers();
+            Class<?>[] superinterfaces = clazz.getInterfaces();
+
+            assertTrue("Ensure that `Post` is `public`!", Modifier.isPublic(modifiers));
+            assertFalse("Ensure that `Post` is NOT `abstract`!", Modifier.isAbstract(modifiers));
+            Assert.assertEquals("Ensure that `Post` implements no interfaces!", 0, superinterfaces.length);
+
+            String title = "Great Animated Stories";
+            String name = "Clementine";
+            String textContext = "Love, Death and Robots";
+            String time = "2021-07-20 11:59:32.623";
+            String accountName = "Xinyi";
+
+            // String title1, String name1, String textContext1, String currentTime, String accountName1
+            Post postTest = new Post(title, name, textContext, time, accountName);
+            Assert.assertEquals(postTest.getTitle(), title);
+            Assert.assertEquals(postTest.getName(), name);
+            Assert.assertEquals(postTest.getTextContext(), textContext);
+            Assert.assertEquals(postTest.getTimestamp(), time);
+            Assert.assertEquals(postTest.getAccountName(), accountName);
+
+            String newTitle = "Amazing!";
+            String newName = "Xinyi Zhang";
+            String newTextContext = "Hanging out with friends today!";
+            String newTime = "2021-07-20 14:15:92.657";
+
+            postTest.setTitle(newTitle);
+            postTest.setName(newName);
+            postTest.setTextContext(newTextContext);
+            postTest.setTimestamp(newTime);
+
+            Assert.assertEquals(postTest.getTitle(), newTitle);
+            Assert.assertEquals(postTest.getName(), newName);
+            Assert.assertEquals(postTest.getTextContext(), newTextContext);
+            Assert.assertEquals(postTest.getTimestamp(), newTime);
+
+            String expectedPost = String.format("Title: %s" +
+                    "\nName: %s" +
+                    "\nTimestamp: %s" +
+                    "\nTextContext: %s", newTitle, newName, newTime, newTextContext);
+            Assert.assertEquals(postTest.toString(), expectedPost);
+        }
+
+        // test getAccountAndPasswordFromFile() in Server.java
+        @Test(timeout = 1000)
+        public void testExpectedThree() {
+            File a = Server.changeAccountFileName("TestAccounts.txt");
+            ArrayList<Account> TestAccounts = Server.getAccounts();
+            Server.getAccountAndPasswordFromFile(a, TestAccounts);
+            for (int i = 0; i < TestAccounts.size(); i++) {
+                if (i == 0) {
+                    Assert.assertEquals("abc", TestAccounts.get(0).getAccountName());
+                    Assert.assertEquals("xyz", TestAccounts.get(0).getPassword());
+                } else if (i == 1) {
+                    Assert.assertEquals("3.1415", TestAccounts.get(1).getAccountName());
+                    Assert.assertEquals("9265", TestAccounts.get(1).getPassword());
+                }
+            }
+        }
+
+        // test getPostsFromFile()
+        @Test(timeout = 1000)
+        public void testExpectedFour() {
+            String expected = "";
+            ArrayList<Post> testGetPosts = Server.getPosts();
+            File p = Server.changePostsFileName("TestPosts.txt");
+            Server.getPostsFromFile(p, testGetPosts);
+            for (int i = 0; i < testGetPosts.size(); i++) {
+                if (i == 0) {
+                    expected = "Title: lol\n" +
+                            "Name: 0-0\n" +
+                            "Timestamp: 2021-07-20 11:59:32.623\n" +
+                            "TextContext: I am so happy now";
+                    Assert.assertEquals(expected, testGetPosts.get(0).toString());
+                } else if (i == 1) {
+                    expected = "Title: 3.1415\n" +
+                            "Name: 3589\n" +
+                            "Timestamp: 2021-07-20 14:57:23.188\n" +
+                            "TextContext: 7932";
+                    Assert.assertEquals(expected, testGetPosts.get(1).toString());
+                }
+            }
+        }
+
+        // test alreadyExistingAccount(ArrayList<Account> accounts, Account accountName)
+        @Test(timeout = 1000)
+        public void testExpectedFive() {
+            File a = Server.changeAccountFileName("TestAccounts.txt");
+            ArrayList<Account> TestAccounts = Server.getAccounts();
+            Server.getAccountAndPasswordFromFile(a, TestAccounts);
+            Account one = new Account("abc", "xyz");
+            Assert.assertEquals(true, Server.alreadyExistingAccount(Server.getAccounts(), one));
+            Account two = new Account("2333", "666");
+            Assert.assertEquals(false, Server.alreadyExistingAccount(Server.getAccounts(), two));
+        }
+
+        // test String listingPosts()
+        @Test(timeout = 1000)
+        public void testExpectedSix() {
+            File p = Server.changePostsFileName("TestPosts.txt");
+            ArrayList<Post> postArrayList = Server.getPosts();
+            Server.getPostsFromFile(p, postArrayList);
+            String expected = "\n[1]\n" +
+                    "Title: 3.1415\n" +
+                    "Name: 3589\n" +
+                    "Timestamp: 2021-07-20 14:57:23.188\n" +
+                    "TextContext: 7932" +
+                    "\n[2]\n" +
+                    "Title: lol\n" +
+                    "Name: 0-0\n" +
+                    "Timestamp: 2021-07-20 11:59:32.623\n" +
+                    "TextContext: I am so happy now";
+            Assert.assertEquals(expected, Server.listingPosts(postArrayList));
+        }
+
+        // test accountExist(ArrayList<Account> accounts, Account accountName)
+        @Test(timeout = 1000)
+        public void testExpectedSeven() {
+            File a = Server.changeAccountFileName("TestAccounts.txt");
+            ArrayList<Account> TestAccounts = Server.getAccounts();
+            Server.getAccountAndPasswordFromFile(a, TestAccounts);
+            Account ExistedAccount = new Account("abc", "xyz");
+            Assert.assertEquals(true, Server.accountExist(Server.getAccounts(), ExistedAccount));
+            Account tricky = new Account("abc", "lmao");
+            Assert.assertEquals(false, Server.accountExist(Server.getAccounts(), tricky));
+        }
+
+        // Test addAccountToFile(Account account)
+        @Test(timeout = 1000)
+        public void testExpectedEight() {
+            File a = Server.changeAccountFileName("TestAccounts.txt");
+            ArrayList<Account> TestAccounts = Server.getAccounts();
+            Server.getAccountAndPasswordFromFile(a, TestAccounts);
+            Account newUser = new Account("Donna", "jay");
+            Server.addAccountToFile(newUser);
+            FileReader fr = null;
+            ArrayList<String> currentList = new ArrayList<>();
+            String line = "";
+            try {
+                fr = new FileReader("TestAccounts.txt");
+                BufferedReader bfr = new BufferedReader(fr);
+                while ((line = bfr.readLine()) != null) {
+                    currentList.add(line);
+                }
+                bfr.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Assert.assertEquals("Donna/br/jay", currentList.get(currentList.size() - 1));
+        }
+
+        // Test editAccount(Account nAccount, int index)
+        /*@Test(timeout = 1000)
+        public void testExpectedNine() {
+            File a = Server.changeAccountFileName("TestAccounts.txt");
+            ArrayList<Account> TestAccounts = Server.getAccounts();
+            Server.getAccountAndPasswordFromFile(a, TestAccounts);
+            Account editedName = new Account("Jay", "Kee");
+            Server.editAccount(editedName, 0);
+            try {
+                BufferedReader bfr = new BufferedReader(new FileReader(a));
+                String line = bfr.readLine();
+                Assert.assertEquals("Jay/br/Kee", line);
+                bfr.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //test editPost(Post post,int index)
+        /*@Test(timeout = 1000)
+        public void testExpectedTen() {
+            Server.changePostsFileName("TestPosts.txt");
+            Server.getPostsFromFile();
+            ArrayList<Post> posts = Server.getPosts();
+            posts.get(0).setTitle("new");
+            posts.get(0).setAccountName("a");
+            posts.get(0).setName("new");
+            posts.get(0).setTimestamp("now");
+            posts.get(0).setTextContext("new");
+            Server.editPost(posts.get(0), 0);
+            FileReader fr = null;
+            try {
+                fr = new FileReader("TestPosts.txt");
+                BufferedReader bfr = new BufferedReader(fr);
+                String a = bfr.readLine();
+                Assert.assertEquals("new/br/new/br/new/br/now/br/a", a);
+                bfr.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Server.editPost(null, 0);
+            try {
+                fr = new FileReader("TestPosts.txt");
+                BufferedReader bfr = new BufferedReader(fr);
+                String a = bfr.readLine();
+                Assert.assertEquals("3.1415/br/3589/br/7932/br/2021-07-20 14:57:23.188/br/Clementine", a);
+                bfr.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }*/
+
+        
+    }
+}
