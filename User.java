@@ -448,7 +448,7 @@ public class User extends Thread {
                                         break;
                                 } while (true);
                                 if (nAccount.equals("")) {
-                                    JOptionPane.showMessageDialog(null, "INVALID Option!",
+                                    JOptionPane.showMessageDialog(null, "INVALID Input!",
                                             "Error", JOptionPane.ERROR_MESSAGE);
                                 } else
                                     break;
@@ -480,7 +480,8 @@ public class User extends Thread {
                                         break;
                                 } while (true);
                                 if (nPassword.equals("")) {
-                                    JOptionPane.showMessageDialog(null, "INVALID Option!",
+                                    JOptionPane.showMessageDialog(null, "Make sure you " +
+                                                    "type something!",
                                             "Error", JOptionPane.ERROR_MESSAGE);
                                 } else
                                     break;
@@ -520,6 +521,7 @@ public class User extends Thread {
                     String invalidMessage = (String) ois.readObject();
                     JOptionPane.showMessageDialog(null, invalidMessage,
                             "Goodbye", JOptionPane.INFORMATION_MESSAGE);
+                    break;
                 }
 
 
