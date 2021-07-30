@@ -461,7 +461,7 @@ public class Server implements Runnable {
                                                         posts.get(posts.indexOf(privatPosts.get(postPosition)));
                                                 editPost(null,
                                                         posts.indexOf(privatPosts.get(postPosition)));
-                                                editPost(TitleReplacement,posts.size()-1);
+                                                editPost(TitleReplacement, posts.size() - 1);
                                                 oos.writeObject("Title Edited!");
 
                                             } else
@@ -484,7 +484,7 @@ public class Server implements Runnable {
                                                         (posts.indexOf(privatPosts.get(postPosition)));
                                                 editPost(null,
                                                         posts.indexOf(privatPosts.get(postPosition)));
-                                                editPost(authorReplacement,posts.size()-1);
+                                                editPost(authorReplacement, posts.size() - 1);
                                                 oos.writeObject("Author Name Edited!");
                                             } else
                                                 oos.writeObject("Empty Input!");
@@ -506,7 +506,7 @@ public class Server implements Runnable {
                                                         posts.get(posts.indexOf(privatPosts.get(postPosition)));
                                                 editPost(null,
                                                         posts.indexOf(privatPosts.get(postPosition)));
-                                                editPost(contextReplacement,posts.size()-1);
+                                                editPost(contextReplacement, posts.size() - 1);
                                                 oos.writeObject("Context Edited");
                                             } else
                                                 oos.writeObject("Empty Input!");
