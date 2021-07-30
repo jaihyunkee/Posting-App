@@ -1,4 +1,4 @@
-<p align="center"><font size=5>Tests.md</font>
+### <p align="center">Tests.md</font>
 
 **Things need to know:**
 
