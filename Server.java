@@ -401,7 +401,7 @@ public class Server implements Runnable {
             }
 
 
-            oos.writeObject(String.format("%s entered", thisAccount.getAccountName()));
+            oos.writeObject(String.format("%s Entered", thisAccount.getAccountName()));
             while (true) {
                 String option = (String) ois.readObject();
                 if (option.equals("Post")) {       //posting
@@ -454,12 +454,16 @@ public class Server implements Runnable {
                                                         (privatPosts.get(postPosition)))
                                                         .setTimestamp(String.valueOf
                                                                 (new Timestamp(System.currentTimeMillis())));
+                                                posts.remove(privatPosts.get(postPosition));
+                                                posts.add(privatPosts.get(postPosition));
                                                 //update edited post to file
                                                 Post TitleReplacement =
                                                         posts.get(posts.indexOf(privatPosts.get(postPosition)));
-                                                editPost(TitleReplacement,
+                                                editPost(null,
                                                         posts.indexOf(privatPosts.get(postPosition)));
+                                                editPost(TitleReplacement,posts.size()-1);
                                                 oos.writeObject("Title Edited!");
+
                                             } else
                                                 oos.writeObject("Empty Input!");
                                             break;
@@ -473,11 +477,14 @@ public class Server implements Runnable {
                                                 posts.get(posts.indexOf(privatPosts.get(postPosition)))
                                                         .setTimestamp(String.valueOf
                                                                 (new Timestamp(System.currentTimeMillis())));
+                                                posts.remove(privatPosts.get(postPosition));
+                                                posts.add(privatPosts.get(postPosition));
                                                 //update edited post to file
                                                 Post authorReplacement = posts.get
                                                         (posts.indexOf(privatPosts.get(postPosition)));
-                                                editPost(authorReplacement,
+                                                editPost(null,
                                                         posts.indexOf(privatPosts.get(postPosition)));
+                                                editPost(authorReplacement,posts.size()-1);
                                                 oos.writeObject("Author Name Edited!");
                                             } else
                                                 oos.writeObject("Empty Input!");
@@ -492,11 +499,14 @@ public class Server implements Runnable {
                                                 posts.get(posts.indexOf(privatPosts.get(postPosition))).
                                                         setTimestamp(String.valueOf
                                                                 (new Timestamp(System.currentTimeMillis())));
+                                                posts.remove(privatPosts.get(postPosition));
+                                                posts.add(privatPosts.get(postPosition));
                                                 //updated edited post to file
                                                 Post contextReplacement =
                                                         posts.get(posts.indexOf(privatPosts.get(postPosition)));
-                                                editPost(contextReplacement,
+                                                editPost(null,
                                                         posts.indexOf(privatPosts.get(postPosition)));
+                                                editPost(contextReplacement,posts.size()-1);
                                                 oos.writeObject("Context Edited");
                                             } else
                                                 oos.writeObject("Empty Input!");
@@ -521,7 +531,7 @@ public class Server implements Runnable {
                             bfr.close();
                             oos.writeObject("Post Created!");
                         } else
-                            oos.writeObject("Failed to Create Post (check if at least one of the inputs is empty)");
+                            oos.writeObject("Failed to Create Post (check if you typed empty context)");
                     } else if (postOption.equals("Delete one of your posts")) {    //deleting post
                         boolean empty = false;
                         ArrayList<Post> privatPosts = new ArrayList<>();
