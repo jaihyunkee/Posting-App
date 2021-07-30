@@ -531,7 +531,7 @@ public class Server implements Runnable {
                             bfr.close();
                             oos.writeObject("Post Created!");
                         } else
-                            oos.writeObject("Failed to Create Post (check if you typed empty context)");
+                            oos.writeObject("Failed to Create Post (check if at least one of the inputs is empty)");
                     } else if (postOption.equals("Delete one of your posts")) {    //deleting post
                         boolean empty = false;
                         ArrayList<Post> privatPosts = new ArrayList<>();
