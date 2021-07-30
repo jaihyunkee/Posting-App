@@ -121,7 +121,8 @@ public class Server implements Runnable {
      * @param textContext1
      * @param accountName
      */
-    private synchronized static void creatingPost(String title1, String name1, String textContext1, String accountName) {
+    private synchronized static void creatingPost(String title1, String name1,
+                                                  String textContext1, String accountName) {
         Post post = new Post(title1, name1, textContext1,
                 String.valueOf(new Timestamp(System.currentTimeMillis())), accountName);
         posts.add(post);    //add each post to posts array
