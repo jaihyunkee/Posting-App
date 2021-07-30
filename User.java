@@ -463,8 +463,8 @@ public class User extends Thread {
                             if (resultOfAccount.equals("Account Name Edited!")) {
                                 JOptionPane.showMessageDialog(null, resultOfAccount, "Success",
                                         JOptionPane.INFORMATION_MESSAGE);
-                            } else if (resultOfAccount.equals("New AccountName" +
-                                    " is the same as your present accountName!")) {
+                            } else if (resultOfAccount.equals
+                                    ("New AccountName is the same as your present accountName!")) {
                                 JOptionPane.showMessageDialog(null, resultOfAccount, "Error",
                                         JOptionPane.ERROR_MESSAGE);
                             } else if (resultOfAccount.equals("Failed to edit (this account name already exists)")) {
@@ -500,12 +500,7 @@ public class User extends Thread {
                             } else if (resultOfPassword.equals("New password is same as your present password!")) {
                                 JOptionPane.showMessageDialog(null, resultOfPassword, "Error",
                                         JOptionPane.ERROR_MESSAGE);
-                            } else if (resultOfPassword.equals("Failed to edit (this account name already exists)")) {
-                                JOptionPane.showMessageDialog(null, resultOfPassword, "Error",
-                                        JOptionPane.ERROR_MESSAGE);
                             }
-
-
                         }
                         //Done until this part
                     } else if (editOrDelete.equals("Delete")) {                  //delete account
@@ -516,7 +511,7 @@ public class User extends Thread {
                         if (yn == 0) { // yes
                             JOptionPane.showMessageDialog(null, "Deleted!\nSee you again!",
                                     "Goodbye", JOptionPane.INFORMATION_MESSAGE);
-                            break;
+                            return;
                         }
                     }
                 } else if (option.equals("Log Out")) {
