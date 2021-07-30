@@ -109,9 +109,9 @@ public class User extends Thread {
                     while (true) {
                         frame = new JFrame("Welcome");
                         nText = new JTextField();
-                        nText.setBounds(100, 100, 200, 30);
+                        nText.setBounds(130, 100, 200, 30);
                         pText = new JTextField();
-                        pText.setBounds(100, 130, 200, 30);
+                        pText.setBounds(130, 130, 200, 30);
                         lg = new JButton("Log in");
                         lg.setBounds(150, 160, 80, 30);
                         accountNameLabel = new JLabel("Account Name");
@@ -186,7 +186,7 @@ public class User extends Thread {
                         oos.writeObject(nPassword);
                         if ((boolean) ois.readObject()) {
                             JOptionPane.showMessageDialog(null,
-                                    "This account name is already exist try again with different name!",
+                                    "This account name already exists, try again with a different name!",
                                     "Already Exist", JOptionPane.ERROR_MESSAGE);
                         } else {
                             JOptionPane.showMessageDialog(null, "Added!", "Success",
@@ -239,7 +239,7 @@ public class User extends Thread {
                     oos.writeObject(userChoice);
                     if (userChoice.equals("See the list of posts")) {            //listing
                         String list = (String) ois.readObject();
-                        JTextArea ta = new JTextArea(list, 25, 25);
+                        JTextArea ta = new JTextArea(list, 30, 30);
                         JScrollPane js = new JScrollPane(ta);
                         js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
                         JOptionPane.showMessageDialog(null,
