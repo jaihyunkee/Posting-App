@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -13,6 +15,15 @@ import java.net.UnknownHostException;
 public class User2 extends Thread {
     private static final String SERVER_IP = "localhost";
     private static final int SERVER_PORT = 5000;
+    private static JTextField nText;
+    private static JTextField pText;
+    private static JButton lg;
+    private static JLabel accountNameLabel;
+    private static JLabel passwordLabel;
+    private static String name;
+    private static String password;
+    private static JFrame frame;
+    private static boolean loop = false;
 
     /**
      * Check if String has numerical value in it
@@ -36,6 +47,19 @@ public class User2 extends Thread {
             return true;
         }
         return false;
+    }
+
+    static public class actionListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+
+            if (e.getSource() == lg) {
+                name = nText.getText();
+                password = pText.getText();
+                loop = true;
+            }
+
+        }
     }
 
     /**
@@ -74,8 +98,6 @@ public class User2 extends Thread {
                     } else
                         break;
                 } while (true);
-                String name;
-                String password;
                 int accountOption = 0;
                 if (sAccountOption.equals(loginCreateAccount[0])) {
                     accountOption = 1;
@@ -84,40 +106,45 @@ public class User2 extends Thread {
                 }
                 oos.writeObject(accountOption);
                 if (accountOption == 1) {
-                    do {
-                        name = JOptionPane.showInputDialog(null, "Enter your account name:",
-                                "Log in", JOptionPane.INFORMATION_MESSAGE);
-                        if (name == null) {
-                            if (exit()) {
-                                return;
-                            }
-                        } else if (name.equals("")) {
-                            JOptionPane.showMessageDialog(null, "Account name can not be empty!",
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                        } else
+                    while (true) {
+                        frame = new JFrame("Welcome");
+                        nText = new JTextField();
+                        nText.setBounds(130, 100, 200, 30);
+                        pText = new JTextField();
+                        pText.setBounds(130, 130, 200, 30);
+                        lg = new JButton("Log in");
+                        lg.setBounds(150, 160, 80, 30);
+                        accountNameLabel = new JLabel("Account Name");
+                        accountNameLabel.setBounds(10, 100, 150, 30);
+                        passwordLabel = new JLabel("Password");
+                        passwordLabel.setBounds(25, 130, 150, 30);
+                        frame.add(nText);
+                        frame.add(pText);
+                        frame.add(lg);
+                        frame.add(accountNameLabel);
+                        frame.add(passwordLabel);
+                        frame.setSize(380, 300);
+                        frame.setLayout(null);
+                        frame.setLocation(550, 250);
+                        lg.addActionListener(new actionListener());
+                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        frame.setVisible(true);
+                        while (!loop) {
+                            System.out.print("");
+                        }
+                        loop = false;
+                        if (name != null && password != null) {
                             break;
-                    } while (true);
-                    do {
-                        password = JOptionPane.showInputDialog(null, "Enter your password",
-                                "Log in", JOptionPane.INFORMATION_MESSAGE);
-                        if (password == null) {
-                            if (exit()) {
-                                return;
-                            } else {
-                                break;
-                            }
-                        } else if (password.equals("")) {
-                            JOptionPane.showMessageDialog(null, "password can not be empty!",
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                        } else
-                            break;
-                    } while (true);
+                        }
+                    }
+                    frame.setVisible(false);
                     oos.writeObject(name);
                     oos.writeObject(password);
 
                     if ((boolean) ois.readObject()) {
                         JOptionPane.showMessageDialog(null, "LOGGED IN!",
                                 "Success", JOptionPane.INFORMATION_MESSAGE);
+                        frame.dispose();
                         break;
                     } else {
                         if ((boolean) ois.readObject()) {
@@ -134,8 +161,9 @@ public class User2 extends Thread {
                     String nName;
                     String nPassword;
                     do {
-                        nName = JOptionPane.showInputDialog(null, "Enter your new account name:",
-                                "Creating Account", JOptionPane.INFORMATION_MESSAGE);
+                        nName = JOptionPane.showInputDialog(null,
+                                "Enter your new account name:",
+                                "Creating Account", JOptionPane.PLAIN_MESSAGE);
                         if (nName == null) {
                             if (exit()) {
                                 return;
@@ -145,8 +173,8 @@ public class User2 extends Thread {
                     } while (true);
                     do {
                         nPassword = JOptionPane.showInputDialog(null,
-                                "Enter your new account name:",
-                                "Creating Account", JOptionPane.INFORMATION_MESSAGE);
+                                "Enter your new password:",
+                                "Creating Account", JOptionPane.PLAIN_MESSAGE);
                         if (nPassword == null) {
                             if (exit()) {
                                 return;
@@ -159,7 +187,7 @@ public class User2 extends Thread {
                         oos.writeObject(nPassword);
                         if ((boolean) ois.readObject()) {
                             JOptionPane.showMessageDialog(null,
-                                    "This account name is already exist try again with different name!",
+                                    "This account name already exists, try again with a different name!",
                                     "Already Exist", JOptionPane.ERROR_MESSAGE);
                         } else {
                             JOptionPane.showMessageDialog(null, "Added!", "Success",
@@ -171,7 +199,8 @@ public class User2 extends Thread {
                 }
             }
             String welcomeMessage = (String) ois.readObject();
-            JOptionPane.showMessageDialog(null, welcomeMessage + "\nWelcome to Posting Program",
+            JOptionPane.showMessageDialog(null, welcomeMessage +
+                            "\nWelcome to Posting Program",
                     "Welcome", JOptionPane.INFORMATION_MESSAGE);
             while (true) {
                 String[] generalOptions = new String[3];
@@ -212,14 +241,14 @@ public class User2 extends Thread {
                     oos.writeObject(userChoice);
                     if (userChoice.equals("See the list of posts")) {            //listing
                         String list = (String) ois.readObject();
-                        JTextArea textArea = new JTextArea(list, 30, 30);
-                        JScrollPane sp = new JScrollPane(textArea);
-                        sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                        JTextArea ta = new JTextArea(list, 30, 30);
+                        JScrollPane js = new JScrollPane(ta);
+                        js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
                         JOptionPane.showMessageDialog(null,
-                                sp, "Posts", JOptionPane.INFORMATION_MESSAGE);
+                                js, "Posts", JOptionPane.INFORMATION_MESSAGE);
                     } else if (userChoice.equals("Edit your posts")) {
                         //editing
-                        if (!(boolean) ois.readObject()) {                  //check if this user hasn't written any posts
+                        if (!(boolean) ois.readObject()) {              //check if this user hasn't written any posts
                             String whichEdit = (String) ois.readObject();    //Which one do you want to edit
                             String whichPost;
                             do {
@@ -269,7 +298,9 @@ public class User2 extends Thread {
                                         } while (true);
                                         oos.writeObject(nThing);
                                         String resultOfEdit = (String) ois.readObject();
-                                        if (resultOfEdit.equals("Title Edited!")) {
+                                        if (resultOfEdit.equals("Title Edited!") ||
+                                                resultOfEdit.equals("Author Name Edited!") ||
+                                                resultOfEdit.equals("Context Edited")) {
                                             JOptionPane.showMessageDialog(null, resultOfEdit,
                                                     "Success", JOptionPane.INFORMATION_MESSAGE);
                                         } else {
@@ -286,7 +317,8 @@ public class User2 extends Thread {
                                 JOptionPane.showMessageDialog(null, "INVALID Option!",
                                         "Error", JOptionPane.ERROR_MESSAGE);
                         } else
-                            JOptionPane.showMessageDialog(null, "You have not written any posts!",
+                            JOptionPane.showMessageDialog(null,
+                                    "You have not written any posts!",
                                     "Error", JOptionPane.ERROR_MESSAGE);
 
                     } else if (userChoice.equals("Create a new post")) {      //creating
@@ -364,7 +396,8 @@ public class User2 extends Thread {
                                 JOptionPane.showMessageDialog(null, "INVALID Option!",
                                         "Error", JOptionPane.ERROR_MESSAGE);
                         } else
-                            JOptionPane.showMessageDialog(null, "You haven't written any posts!",
+                            JOptionPane.showMessageDialog(null,
+                                    "You haven't written any posts!",
                                     "Error", JOptionPane.ERROR_MESSAGE);
                     } else
                         JOptionPane.showMessageDialog(null, "INVALID Option!",
@@ -394,7 +427,8 @@ public class User2 extends Thread {
                         do {
                             editOption = (String) JOptionPane.showInputDialog(null,
                                     "Which one do you want to edit?", "Edit Account",
-                                    JOptionPane.INFORMATION_MESSAGE, null, editAccountOrPassword, editAccountOrPassword);
+                                    JOptionPane.INFORMATION_MESSAGE, null, editAccountOrPassword,
+                                    editAccountOrPassword);
                             if (editOption == null) {
                                 if (exit()) {
                                     return;
@@ -419,7 +453,7 @@ public class User2 extends Thread {
                                         break;
                                 } while (true);
                                 if (nAccount.equals("")) {
-                                    JOptionPane.showMessageDialog(null, "INVALID Option!",
+                                    JOptionPane.showMessageDialog(null, "INVALID Input!",
                                             "Error", JOptionPane.ERROR_MESSAGE);
                                 } else
                                     break;
@@ -429,7 +463,8 @@ public class User2 extends Thread {
                             if (resultOfAccount.equals("Account Name Edited!")) {
                                 JOptionPane.showMessageDialog(null, resultOfAccount, "Success",
                                         JOptionPane.INFORMATION_MESSAGE);
-                            } else if (resultOfAccount.equals("New AccountName is same as your present accountName!")) {
+                            } else if (resultOfAccount.equals
+                                    ("New AccountName is the same as your present accountName!")) {
                                 JOptionPane.showMessageDialog(null, resultOfAccount, "Error",
                                         JOptionPane.ERROR_MESSAGE);
                             } else if (resultOfAccount.equals("Failed to edit (this account name already exists)")) {
@@ -451,7 +486,8 @@ public class User2 extends Thread {
                                         break;
                                 } while (true);
                                 if (nPassword.equals("")) {
-                                    JOptionPane.showMessageDialog(null, "INVALID Option!",
+                                    JOptionPane.showMessageDialog(null, "Make sure you " +
+                                                    "type something!",
                                             "Error", JOptionPane.ERROR_MESSAGE);
                                 } else
                                     break;
@@ -464,22 +500,18 @@ public class User2 extends Thread {
                             } else if (resultOfPassword.equals("New password is same as your present password!")) {
                                 JOptionPane.showMessageDialog(null, resultOfPassword, "Error",
                                         JOptionPane.ERROR_MESSAGE);
-                            } else if (resultOfPassword.equals("Failed to edit (this account name already exists)")) {
-                                JOptionPane.showMessageDialog(null, resultOfPassword, "Error",
-                                        JOptionPane.ERROR_MESSAGE);
                             }
-
-
                         }
                         //Done until this part
                     } else if (editOrDelete.equals("Delete")) {                  //delete account
-                        int yn = JOptionPane.showConfirmDialog(null, "Are you sure to delete your account?",
+                        int yn = JOptionPane.showConfirmDialog(null,
+                                "Are you sure to delete your account?",
                                 "Confirmation", JOptionPane.YES_NO_OPTION);
                         oos.writeObject(yn);
                         if (yn == 0) { // yes
                             JOptionPane.showMessageDialog(null, "Deleted!\nSee you again!",
                                     "Goodbye", JOptionPane.INFORMATION_MESSAGE);
-                            break;
+                            return;
                         }
                     }
                 } else if (option.equals("Log Out")) {
@@ -491,6 +523,7 @@ public class User2 extends Thread {
                     String invalidMessage = (String) ois.readObject();
                     JOptionPane.showMessageDialog(null, invalidMessage,
                             "Goodbye", JOptionPane.INFORMATION_MESSAGE);
+                    break;
                 }
 
 
