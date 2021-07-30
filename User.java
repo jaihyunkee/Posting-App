@@ -109,9 +109,9 @@ public class User extends Thread {
                     while (true) {
                         frame = new JFrame("Welcome");
                         nText = new JTextField();
-                        nText.setBounds(130, 100, 200, 30);
+                        nText.setBounds(100, 100, 200, 30);
                         pText = new JTextField();
-                        pText.setBounds(130, 130, 200, 30);
+                        pText.setBounds(100, 130, 200, 30);
                         lg = new JButton("Log in");
                         lg.setBounds(150, 160, 80, 30);
                         accountNameLabel = new JLabel("Account Name");
@@ -173,7 +173,7 @@ public class User extends Thread {
                     do {
                         nPassword = JOptionPane.showInputDialog(null,
                                 "Enter your new password:",
-                                "Creating Account", JOptionPane.INFORMATION_MESSAGE);
+                                "Creating Account", JOptionPane.PLAIN_MESSAGE);
                         if (nPassword == null) {
                             if (exit()) {
                                 return;
@@ -186,7 +186,7 @@ public class User extends Thread {
                         oos.writeObject(nPassword);
                         if ((boolean) ois.readObject()) {
                             JOptionPane.showMessageDialog(null,
-                                    "This account name already existed, try again with a different name!",
+                                    "This account name is already exist try again with different name!",
                                     "Already Exist", JOptionPane.ERROR_MESSAGE);
                         } else {
                             JOptionPane.showMessageDialog(null, "Added!", "Success",
@@ -239,11 +239,11 @@ public class User extends Thread {
                     oos.writeObject(userChoice);
                     if (userChoice.equals("See the list of posts")) {            //listing
                         String list = (String) ois.readObject();
-                        JTextArea textArea = new JTextArea(list, 30, 30);
-                        JScrollPane sp = new JScrollPane(textArea);
-                        sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                        JTextArea ta = new JTextArea(list, 25, 25);
+                        JScrollPane js = new JScrollPane(ta);
+                        js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
                         JOptionPane.showMessageDialog(null,
-                                sp, "Posts", JOptionPane.INFORMATION_MESSAGE);
+                                js, "Posts", JOptionPane.INFORMATION_MESSAGE);
                     } else if (userChoice.equals("Edit your posts")) {
                         //editing
                         if (!(boolean) ois.readObject()) {                  //check if this user hasn't written any posts
@@ -296,7 +296,9 @@ public class User extends Thread {
                                         } while (true);
                                         oos.writeObject(nThing);
                                         String resultOfEdit = (String) ois.readObject();
-                                        if (resultOfEdit.equals("Title Edited!")) {
+                                        if (resultOfEdit.equals("Title Edited!") ||
+                                                resultOfEdit.equals("Author Name Edited!") ||
+                                                resultOfEdit.equals("Context Edited")) {
                                             JOptionPane.showMessageDialog(null, resultOfEdit,
                                                     "Success", JOptionPane.INFORMATION_MESSAGE);
                                         } else {
