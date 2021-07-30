@@ -30,8 +30,8 @@ public class Server implements Runnable {
     public static void main(String[] args) {
         //account Setting
         try {
-            getAccountAndPasswordFromFile(accountFile, accounts);  //when server starts get account data from file
-            getPostsFromFile(postFile, posts);                     //when server starts get posts data from file
+            getAccountAndPasswordFromFile();  //when server starts get account data from file
+            getPostsFromFile();                     //when server starts get posts data from file
             loggedIn = new ArrayList<>();
             serverSocket = new ServerSocket(SERVER_PORT);
             while (true) {
@@ -55,7 +55,7 @@ public class Server implements Runnable {
     /**
      * getting all password data from file
      */
-    public synchronized static void getAccountAndPasswordFromFile(File f, ArrayList<Account> a) {
+    public synchronized static void getAccountAndPasswordFromFile() {
         try {
             FileReader fr = new FileReader(accountFile);
             BufferedReader bfr = new BufferedReader(fr);
@@ -82,7 +82,7 @@ public class Server implements Runnable {
     /**
      * getting all post data from file
      */
-    public synchronized static void getPostsFromFile(File f, ArrayList<Post> p) {
+    public synchronized static void getPostsFromFile() {
         try {
             FileReader fr = new FileReader(postFile);
             BufferedReader bfr = new BufferedReader(fr);
@@ -291,46 +291,6 @@ public class Server implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * This is a method to run RunLocalTest
-     *
-     * @param newFileName1
-     * @return File
-     */
-    public synchronized static File changeAccountFileName(String newFileName1) {
-        accountFile = new File(newFileName1);
-        return accountFile;
-    }
-
-    /**
-     * This is a method to run RunLocalTest
-     *
-     * @param newFileName2
-     */
-
-    public static File changePostsFileName(String newFileName2) {
-        postFile = new File(newFileName2);
-        return postFile;
-    }
-
-    /**
-     * This is a method to run RunLocalTest
-     *
-     * @return ArrayList<Account></>
-     */
-    public static java.util.ArrayList<Account> getAccounts() {
-        return accounts;
-    }
-
-    /**
-     * This is a method to run RunLocalTest
-     *
-     * @return ArrayList<Post></>
-     */
-    public static ArrayList<Post> getPosts() {
-        return posts;
     }
 
     /**
