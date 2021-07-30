@@ -597,6 +597,16 @@ public class Server implements Runnable {
                                         accounts.get(i).getPassword().equals(thisAccount.getPassword()))
                                     a = i;
                             }
+                            ArrayList<Post> postsDelete = new ArrayList<>();
+                            for (int i = 0; i < posts.size(); i++) {
+                                if (posts.get(i).getAccountName().equals(accounts.get(a).getAccountName())) {
+                                    postsDelete.add(posts.get(i));
+                                }
+                            }
+                            for (int i = 0; i < postsDelete.size(); i++) {
+                                posts.remove(postsDelete.get(i));
+                            }
+                            editPost(posts.get(0), 0); //update to file (meaningless index and post)
                             editAccount(null, a);
                             accounts.remove(a);
                             loggedIn.remove(thisAccount);
