@@ -565,7 +565,7 @@ public class Server implements Runnable {
                                 thisAccount.setAccountName(nName);
                                 completionMessage = "Account Name Edited!";
                             } else if (thisAccount.getAccountName().equals(nName))
-                                completionMessage = "New AccountName is same as your present accountName!";
+                                completionMessage = "New AccountName is the same as your present accountName!";
                             else {
                                 completionMessage = "Failed to edit (this account name already exists)";
                             }
@@ -584,9 +584,6 @@ public class Server implements Runnable {
                                 completionMessage = "Password Edited!";
                             } else if (thisAccount.getAccountName().equals(nPassword))
                                 completionMessage = "New password is same as your present password!";
-                            else {
-                                completionMessage = "Failed to edit (this account name already exists)";
-                            }
                             oos.writeObject(completionMessage);
                         }
                     } else if (editOrDelete.equals("Delete")) {             //Deleting Account
@@ -607,7 +604,9 @@ public class Server implements Runnable {
                             for (int i = 0; i < postsDelete.size(); i++) {
                                 posts.remove(postsDelete.get(i));
                             }
-                            editPost(posts.get(0), 0); //update to file (meaningless index and post)
+                            String ab = "";
+                            Post n = new Post(ab, ab, ab, String.valueOf(new Timestamp(System.currentTimeMillis())), ab);
+                            editPost(n, 0); //update to file (meaningless index and post)
                             editAccount(null, a);
                             accounts.remove(a);
                             loggedIn.remove(thisAccount);
