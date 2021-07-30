@@ -401,7 +401,7 @@ public class Server implements Runnable {
             }
 
 
-            oos.writeObject(String.format("%s Entered", thisAccount.getAccountName()));
+            oos.writeObject(String.format("%s entered", thisAccount.getAccountName()));
             while (true) {
                 String option = (String) ois.readObject();
                 if (option.equals("Post")) {       //posting
@@ -521,7 +521,7 @@ public class Server implements Runnable {
                             bfr.close();
                             oos.writeObject("Post Created!");
                         } else
-                            oos.writeObject("Failed to Create Post (check if you typed empty context)");
+                            oos.writeObject("Failed to Create Post (check if at least one of the inputs is empty)");
                     } else if (postOption.equals("Delete one of your posts")) {    //deleting post
                         boolean empty = false;
                         ArrayList<Post> privatPosts = new ArrayList<>();
