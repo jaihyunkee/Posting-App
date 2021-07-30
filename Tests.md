@@ -108,11 +108,12 @@ Steps:
     
 2.  User selects the “Log in” Option and clicks on “OK”.
 <br>**![](https://lh4.googleusercontent.com/6BR59LCjDr0hV8EcT5OapJGQQR9moeR6Xe5wRrl_o3nu5HTxd1o6HwxW2leuLXyhXuDa4V3CBmtz90uANIm0eqOy4WvM8_53ARrxpBjz1iBNwf8gDt9iZ98nbUuQCZNfszoKs12S)**
-<br>1.  User selects the account name textbox and enters via keyboard.
+
+3.  User selects the account name textbox and enters via keyboard.
     
-2.  User selects the password textbox and enters via keyboard.
+4.  User selects the password textbox and enters via keyboard.
     
-3.  User clicks on the "Log in" button.
+5.  User clicks on the "Log in" button.
     
 
 (We used the registered account “newUser” and “newPassword”)
