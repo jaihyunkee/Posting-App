@@ -243,7 +243,8 @@ public class User extends Thread {
                         String list = (String) ois.readObject();
                         JTextArea ta = new JTextArea(list, 30, 30);
                         JScrollPane js = new JScrollPane(ta);
-                        js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                        js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                        js.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
                         JOptionPane.showMessageDialog(null,
                                 js, "Posts", JOptionPane.INFORMATION_MESSAGE);
                     } else if (userChoice.equals("Edit your posts")) {
