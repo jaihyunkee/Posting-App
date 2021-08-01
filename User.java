@@ -393,7 +393,7 @@ public class User extends Thread {
                                 JOptionPane.showMessageDialog(null, "Deleted", "Success",
                                         JOptionPane.INFORMATION_MESSAGE);
                             } else
-                                JOptionPane.showMessageDialog(null, "INVALID Option!",
+                                JOptionPane.showMessageDialog(null, "INVALID Input!",
                                         "Error", JOptionPane.ERROR_MESSAGE);
                         } else
                             JOptionPane.showMessageDialog(null,
