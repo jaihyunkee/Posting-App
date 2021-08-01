@@ -210,8 +210,8 @@ Steps:
 Expected result:
 
 Show the error message “Failed to Create Post (check if at least one of the inputs is empty)”
+<br>![image](https://user-images.githubusercontent.com/82849520/127780443-6fd8ffd0-bd60-45a2-a02e-7d6eef6a269e.png)
 
-  
 
 Click “OK” and return to the main menu.
 
