@@ -589,7 +589,7 @@ Expected result:
 Test Status: Passed.
 
 
-### Test 21: User - Server Multi-Connection Test
+### Test 20: User - Server Multi-Connection Test
 
 Steps:
 
