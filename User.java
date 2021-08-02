@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
  * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
- * @version July 21, 2021
+ * @version Aug 2, 2021
  */
 public class User extends Thread {
     private static final String SERVER_IP = "localhost";
@@ -39,7 +39,9 @@ public class User extends Thread {
             return false;
         }
     }
-
+    /**
+     * ask if User wants to exit the program
+     */
     public static boolean exit() {
         int ver2 = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
                 "Verification", JOptionPane.YES_NO_OPTION);
@@ -48,7 +50,9 @@ public class User extends Thread {
         }
         return false;
     }
-
+    /**
+     * ActionListener for log in button
+     */
     static public class actionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
