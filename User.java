@@ -39,6 +39,7 @@ public class User extends Thread {
             return false;
         }
     }
+
     /**
      * ask if User wants to exit the program
      */
@@ -50,6 +51,7 @@ public class User extends Thread {
         }
         return false;
     }
+
     /**
      * ActionListener for log in button
      */
