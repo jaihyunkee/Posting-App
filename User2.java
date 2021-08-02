@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
  * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
- * @version July 21, 2021
+ * @version Aug 2, 2021
  */
 public class User2 extends Thread {
     private static final String SERVER_IP = "localhost";
@@ -40,6 +40,9 @@ public class User2 extends Thread {
         }
     }
 
+    /**
+     * ask if User wants to exit the program
+     */
     public static boolean exit() {
         int ver2 = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
                 "Verification", JOptionPane.YES_NO_OPTION);
@@ -49,6 +52,9 @@ public class User2 extends Thread {
         return false;
     }
 
+    /**
+     * ActionListener for log in button
+     */
     static public class actionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -243,7 +249,8 @@ public class User2 extends Thread {
                         String list = (String) ois.readObject();
                         JTextArea ta = new JTextArea(list, 30, 30);
                         JScrollPane js = new JScrollPane(ta);
-                        js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                        js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                        js.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
                         JOptionPane.showMessageDialog(null,
                                 js, "Posts", JOptionPane.INFORMATION_MESSAGE);
                     } else if (userChoice.equals("Edit your posts")) {
@@ -393,7 +400,7 @@ public class User2 extends Thread {
                                 JOptionPane.showMessageDialog(null, "Deleted", "Success",
                                         JOptionPane.INFORMATION_MESSAGE);
                             } else
-                                JOptionPane.showMessageDialog(null, "INVALID Option!",
+                                JOptionPane.showMessageDialog(null, "INVALID Input!",
                                         "Error", JOptionPane.ERROR_MESSAGE);
                         } else
                             JOptionPane.showMessageDialog(null,
