@@ -37,14 +37,12 @@ public class Server implements Runnable {
             serverSocket = new ServerSocket(SERVER_PORT);
             while (true) {
                 try {
-                    System.out.println("Waiting for client...");
                     socket = serverSocket.accept();         //allows client connect
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 Thread temp = new Thread(new Server());       //start each thread
                 temp.start();
-                System.out.println("Connect!");
             }
 
 
