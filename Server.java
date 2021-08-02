@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
- * @version July 21, 2021
+ * @version Aug 2, 2021
  */
 public class Server implements Runnable {
     private static final int SERVER_PORT = 5000;
@@ -163,7 +163,7 @@ public class Server implements Runnable {
      *
      * @return String
      */
-    public synchronized static String listingPosts(ArrayList post) {
+    public synchronized static String listingPosts(ArrayList<Post> post) {
         String temp = "";
         int count = 1;
         for (int i = post.size() - 1; i >= 0; i--) {
