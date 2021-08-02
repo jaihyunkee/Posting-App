@@ -7,6 +7,7 @@ import java.util.ArrayList;
 /**
  * <p>
  * Purdue University -- CS18000 -- Summer 2021 -- Project 5
+ * Server
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version Aug 2, 2021
@@ -605,7 +606,8 @@ public class Server implements Runnable {
                                 posts.remove(postsDelete.get(i));
                             }
                             String ab = "";
-                            Post n = new Post(ab, ab, ab, String.valueOf(new Timestamp(System.currentTimeMillis())), ab);
+                            Post n = new Post(ab, ab, ab,
+                                    String.valueOf(new Timestamp(System.currentTimeMillis())), ab);
                             editPost(n, 0); //update to file (meaningless index and post)
                             editAccount(null, a);
                             accounts.remove(a);
