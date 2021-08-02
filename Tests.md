@@ -514,30 +514,8 @@ Show the confirmation message as below.
 
 Test Status: Passed.
 
-### Test 17: Account Setting (Delete Account) - successfully
 
-Steps:
-
-  
-
-1.  After logging in with User.java, select “Account Setting”
-    
-2.  Select “Delete” and then Select “Yes”
-    
-
-  
-
-Expected result:
-
-  
-
-Show the confirmation message as below.
-
-![](https://lh5.googleusercontent.com/8fpOp4m5gvmSoF4CZs0sm3f7ZQQ8E4gnyLKncnFTwq3LHOSz2pxig8yI4FQfBxBTwL-jSxBRlnvB6mYUmNVqZ3azbU5p40ev2-WCuq0LDlrfRePLpW8FU8pWTLNov8AfhWIaVktc)
-
-Test Status: Passed.
-
-### Test 18: Log out - successfully
+### Test 17: Log out - successfully
 
 Steps:
 
@@ -558,7 +536,7 @@ Show the confirmation message as below.
 Test Status: Passed.
  
 
-### Test 19: Real-Time updates
+### Test 18: Real-Time updates
 
 Steps:
 
@@ -583,7 +561,7 @@ Test Status: Passed.
 
   
 
-### Test 20: Deleting posts when delete account
+### Test 19: Deleting posts when delete account
 
 Steps:
 
@@ -607,5 +585,35 @@ Expected result:
 ![](https://lh3.googleusercontent.com/kKfYV9EVxQUvNhQl3UiImyhGWxhnIk92_R0GLYeqB7MxsugLhETIg7wVobydCwDQTv49ArHLDrE6lg321_Emv3ZgIWCZevDH5_17YCcsmxL_xRqgNTKjv7axyPNA1y5q84BCqt6c)
 
 (After deleting the account, in User2.java, there is no post remaining)
+
+Test Status: Passed.
+
+
+### Test 21: User - Server Multi-Connection Test
+
+Steps:
+
+1.  Run the Server and Run User.java, User2.java, User3.java, and User4.java
+    
+2.  Check if all connections are fine and work simultaneously.
+    
+3.  Create a post from User.java and then check if it is correctly posted in User2.java
+    
+
+Expected result:
+
+(The post created in User.java should be on the list)
+
+<br>![](https://lh3.googleusercontent.com/N4Z7Sr0g8ZdnQTkfGbcAjYhMnEs99uZUb1ug7uVqNkQwNhII3de8IHMWR8GXKPOfpTjxtANNTgztXk2gSNBa2iAPLZ0-V_tdl-V2XaROevA3G6VF2b-7529qvUwK38Tx-3G0Z8kv)
+
+<br>(Log in for every windows)
+
+<br>![](https://lh3.googleusercontent.com/PIVIaCi0WwbbwVqg35vvL4GDFeArv2fQHJn3zFozVKih54ZDAkjxbss71woGDH9DzcAxXJFH6jFF7XEnNg_l5_l9fPucraUnRpI8t24Y-YLs6ki2kG5RBFWiPyrAPcnJ6X7CT1rP)
+
+<br>(Create a post in User.java)
+
+<br>![](https://lh5.googleusercontent.com/rx0IR28EEy1n96ETU_Gg7s38iKa1yMXaLRq1me4MFnrp1yAUywitFALWv1oMrtO7MqfzglQlgFpkjd7p387ifEpQClgng5Ib95As0hTjBtUGVsfBO-0MWgu597xIE3ZUAlSHJkZO)
+
+<br>(Check if it is created in another window.)
 
 Test Status: Passed.
