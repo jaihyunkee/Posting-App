@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -8,6 +7,7 @@ import java.net.UnknownHostException;
 /**
  * <p>
  * Purdue University -- CS18000 -- Summer 2021 -- Project 5
+ * User Client
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version Aug 2, 2021
@@ -46,19 +46,15 @@ public class User extends Thread {
     public static boolean exit() {
         int ver2 = JOptionPane.showConfirmDialog(null, "Do you want to exit?",
                 "Verification", JOptionPane.YES_NO_OPTION);
-        if (ver2 == JOptionPane.YES_OPTION) {
-            return true;
-        }
-        return false;
+        return ver2 == JOptionPane.YES_OPTION;
     }
 
     /**
      * ActionListener for log in button
      */
-    static public class actionListener implements ActionListener {
+    static public class ActionListener implements java.awt.event.ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-
             if (e.getSource() == lg) {
                 name = nText.getText();
                 password = pText.getText();
@@ -132,7 +128,7 @@ public class User extends Thread {
                         frame.setSize(380, 300);
                         frame.setLayout(null);
                         frame.setLocation(550, 250);
-                        lg.addActionListener(new actionListener());
+                        lg.addActionListener(new ActionListener());
                         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                         frame.setVisible(true);
                         while (!loop) {
@@ -470,8 +466,8 @@ public class User extends Thread {
                             if (resultOfAccount.equals("Account Name Edited!")) {
                                 JOptionPane.showMessageDialog(null, resultOfAccount, "Success",
                                         JOptionPane.INFORMATION_MESSAGE);
-                            } else if (resultOfAccount.equals
-                                    ("New AccountName is the same as your present accountName!")) {
+                            } else if (resultOfAccount.equals("New AccountName " +
+                                    "is the same as your present accountName!")) {
                                 JOptionPane.showMessageDialog(null, resultOfAccount, "Error",
                                         JOptionPane.ERROR_MESSAGE);
                             } else if (resultOfAccount.equals("Failed to edit (this account name already exists)")) {
