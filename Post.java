@@ -1,6 +1,5 @@
 /**
  * <p>
- * Purdue University -- CS18000 -- Summer 2021 -- Project 4
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version July 19, 2021
