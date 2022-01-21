@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 
 /**
  * <p>
- * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  * It is for testing multi-user connection with Server
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
