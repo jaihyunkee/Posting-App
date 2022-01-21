@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 /**
  * <p>
- * Purdue University -- CS18000 -- Summer 2021 -- Project 5
  * Server
  *
  * @author Purdue CS Jaihyun Kee Xinyi Zhang
