@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * <p>
  * Server
  *
- * @author Purdue CS Jaihyun Kee
+ * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version Aug 2, 2021
  */
 public class Server implements Runnable {
