@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
  * <p>
  * User Client
  *
- * @author Purdue CS Jaihyun Kee Xinyi Zhang
+ * @author Purdue CS Jaihyun Kee
  * @version Aug 2, 2021
  */
 public class User extends Thread {
