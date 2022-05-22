@@ -1,7 +1,7 @@
 /**
  * <p>
  *
- * @author Purdue CS Jaihyun Kee
+ * @author Purdue CS Jaihyun Kee Xinyi Zhang
  * @version July 21, 2021
  */
 public class Account {
