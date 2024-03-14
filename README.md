@@ -1,4 +1,4 @@
-# Project 5: Social Networking GUI Application
+# Posting Application
 
 ## Overview
 
