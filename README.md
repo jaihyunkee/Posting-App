@@ -39,14 +39,6 @@ To enhance user experience, start the application by running `User.java`. The ap
 
 We employ `Tests.md` to simulate and document user interactions, detailing various scenarios and outcomes. Screenshots are provided to aid comprehension.
 
-## Contributing
-
-We welcome contributions! Please refer to our [contributing guidelines](CONTRIBUTING.md) for more details.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE.md).
-
 ## Acknowledgments
 
 - CS 18000 Course Coordinators for guidance and project adaptations.
