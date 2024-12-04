@@ -2,7 +2,7 @@
 
 ## Overview
 
-In Project 5, we've developed a user-friendly GUI application that allows individuals to share their thoughts and ideas on their own account, similar to a social networking platform. This application supports multiple users simultaneously, enabling them to create, edit, or delete their postings and manage their accounts. 
+We've developed a user-friendly GUI application that allows individuals to share their thoughts and ideas on their own account, similar to a social networking platform. This application supports multiple users simultaneously, enabling them to create, edit, or delete their postings and manage their accounts. 
 
 ### Key Features:
 
